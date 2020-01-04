@@ -1,0 +1,54 @@
+.MainBox{
+
+}
+.leftSideSettings{
+    -fx-border-color: dimgrey;
+    -fx-border-width: 0.5;
+}
+.sideSideSettings{
+    -fx-border-color: dimgray;
+    -fx-border-width: 2px;
+}
+.lineChart .chart-series-line {
+    -fx-stroke-width: 2px;
+}
+.lineChart .chart-line-symbol{
+    -fx-background-radius: 0;
+    -fx-stroke-width: 0;
+    -fx-stroke-type: centered;
+}
+.lineChart .chart-vertical-grid-lines {
+    -fx-stroke: transparent;
+}
+.basicButton {
+    -fx-border-width: 0.3;
+    -fx-border-color: dimgray;
+    -fx-background-radius: 0;
+    -fx-background-color: transparent;
+    -fx-font-family:"Segoe UI", Helvetica, Arial, sans-serif;
+    -fx-text-fill: #828282;
+}
+.basicButton:hover {
+    -fx-background-radius: 0;
+    -fx-background-color: transparent;
+    -fx-effect: dropshadow(one-pass-box, black, 1, 0.5, 0, 0);
+    -fx-font-family:"Segoe UI", Helvetica, Arial, sans-serif;
+    -fx-text-fill: #828282;
+}
+.basicButton:pressed{
+    -fx-background-radius: 0;
+    -fx-background-color: transparent;
+    -fx-font-family:"Segoe UI", Helvetica, Arial, sans-serif;
+    -fx-text-fill: #828282;
+}
+.leftTextField {
+    -fx-background-color: #f0f0f0;
+    -fx-border-color: #b4b4b4;
+    -fx-border-width: 0 0 0 0;
+}
+.leftTextField:focused{
+    -fx-background-color: #f0f0f0;
+    -fx-border-color: #b4b4b4;
+    -fx-border-width: 0 0 1 0;
+    -fx-effect: dropshadow(one-pass-box, black, 1, 0.5, 0, 0);
+}
