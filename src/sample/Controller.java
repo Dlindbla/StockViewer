@@ -82,7 +82,7 @@ public class Controller implements Initializable {
         Bounds boundsInScene = parent.localToScreen(parent.getBoundsInLocal());
         emptySearchWarning.setAutoHide(true);
         emptySearchWarning.setText(message);
-        emptySearchWarning.show(parent, boundsInScene.getCenterX(), boundsInScene.getCenterY());
+        emptySearchWarning.show(parent, boundsInScene.getMaxX(), boundsInScene.getMaxY());
     }
 
 
