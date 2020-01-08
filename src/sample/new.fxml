@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.chart.CategoryAxis?>
-<?import javafx.scene.chart.LineChart?>
+ <?import javafx.scene.chart.LineChart?>
 <?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
@@ -14,6 +13,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
+<?import javafx.scene.chart.CategoryAxis?>
 <HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" styleClass="MainBox" stylesheets="@/sample/AppStyle.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
    <children>
       <AnchorPane maxWidth="200" prefHeight="200.0" prefWidth="200.0" styleClass="leftSideSettings">
@@ -48,14 +48,14 @@
                   </TableView>
                </children>
             </VBox>
-            <Button onAction="#fliplegends"  fx:id="flipbutton" layoutY="50.0" mnemonicParsing="false" text="Button" />
+            <Button onAction="#addTestData"  fx:id="flipbutton" layoutY="50.0" mnemonicParsing="false" text="Button" />
          </children>
       </AnchorPane>
       <AnchorPane prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS">
          <children>
             <LineChart fx:id="lineChart" prefHeight="400.0" prefWidth="296.0" styleClass="lineChart" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
               <xAxis>
-                <CategoryAxis side="BOTTOM" tickLength="0" fx:id="xAxis" />
+                <CategoryAxis side="BOTTOM" fx:id="xAxis" />
               </xAxis>
               <yAxis>
                 <NumberAxis fx:id="yAxis" side="LEFT" tickUnit="10" />

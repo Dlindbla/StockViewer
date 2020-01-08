@@ -1,13 +1,15 @@
 package Main;
 
 import org.json.simple.JSONObject;
+import org.junit.runner.manipulation.Sortable;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 
-public class StockData{
+public class StockData implements Comparable<StockData> {
     String stockSymbol;
     String interval;
     String JSONkey;
@@ -21,23 +23,23 @@ public class StockData{
         return stockTicks;
     }
 
+
     public String getStockSymbol() {
         return stockSymbol;
     }
 
 
-
     public StockData(JSONObject JSONData, String stockSymbol, String interval) throws ParseException {
         this.stockSymbol = stockSymbol;
         this.interval = interval;
-        this.JSONkey = "Time Series "+"("+interval+")";
+        this.JSONkey = "Time Series " + "(" + interval + ")";
         this.secondJSONKey = interval + " Time Series";
         isIntraDay = true;
         tickAmount = 0;
         //use try both keys to check whether the data is intraday or not
         //overwrite the JSONkey if the data is not intraday
 
-        if(JSONData.containsKey(secondJSONKey)){
+        if (JSONData.containsKey(secondJSONKey)) {
             this.JSONkey = this.secondJSONKey;
             System.out.println(secondJSONKey);
             isIntraDay = false;
@@ -55,7 +57,7 @@ public class StockData{
 
 
         System.out.println(JSONkey);
-        for(Object tick: data.keySet()){
+        for (Object tick : data.keySet()) {
             JSONObject tempJSON = (JSONObject) data.get(tick);
             String datetimeString = tick.toString();
             Date dateTime = parseDate(datetimeString);
@@ -70,33 +72,31 @@ public class StockData{
             double adjusted_close = 0;
             double dividend_amount = 0;
             double split_coefficient = 0;
-            if(tempJSON.containsKey("5. adjusted close")){
-            adjusted_close = Double.valueOf(tempJSON.get("5. adjusted close").toString());
-            dividend_amount = Double.valueOf(tempJSON.get("7. dividend amount").toString());
-            split_coefficient = Double.valueOf(tempJSON.get("8. split coefficient").toString());
-            volume = Double.valueOf(tempJSON.get("6. volume").toString());
-            }
-            else{
+            if (tempJSON.containsKey("5. adjusted close")) {
+                adjusted_close = Double.valueOf(tempJSON.get("5. adjusted close").toString());
+                dividend_amount = Double.valueOf(tempJSON.get("7. dividend amount").toString());
+                split_coefficient = Double.valueOf(tempJSON.get("8. split coefficient").toString());
+                volume = Double.valueOf(tempJSON.get("6. volume").toString());
+            } else {
                 volume = Double.valueOf(tempJSON.get("5. volume").toString());
             }
 
-            StockTick tempTick = new StockTick(dateTime, open, high, low, close, volume, rawDate, adjusted_close, dividend_amount,split_coefficient);
+            StockTick tempTick = new StockTick(dateTime, open, high, low, close, volume, rawDate, adjusted_close, dividend_amount, split_coefficient);
             stockTicks.add(tempTick);
             tickAmount++;
         }
     }
 
-    private Date parseDate(String dateTimeString){
-        String[] formats = new String[] {"yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd"};
+    private Date parseDate(String dateTimeString) {
+        String[] formats = new String[]{"yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd"};
         Date resultDate = null;
-        for (String format: formats) {
+        for (String format : formats) {
             if (dateTimeString != null && format.length() == dateTimeString.length()) {
                 try {
                     SimpleDateFormat sdFormat = new SimpleDateFormat(format);
                     resultDate = sdFormat.parse(dateTimeString);
                     break;
-                }
-                catch (ParseException e) {
+                } catch (ParseException e) {
                 }
             }
         }
@@ -104,19 +104,25 @@ public class StockData{
     }
 
 
-    public void sortArray(){
+    public void sortArray() {
         Collections.sort(stockTicks);
     }
 
-    public ArrayList<String> getArrayDates(){
+    public ArrayList<String> getArrayDates() {
         ArrayList<String> dates = new ArrayList<>();
-        for(StockTick tick: stockTicks){
-            String tempString = String.format("%s",tick.dateTime);
+        for (StockTick tick : stockTicks) {
+            String tempString = String.format("%s", tick.dateTime);
             dates.add(tempString);
         }
         return dates;
     }
 
 
-}
+    @Override
+    public int compareTo(StockData stockData) {
+        Date first = this.stockTicks.stream().findFirst().get().dateTime;
+        Date second = stockData.stockTicks.stream().findFirst().get().dateTime;
+        return first.compareTo(second);
+    }
 
+}

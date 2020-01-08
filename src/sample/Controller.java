@@ -12,11 +12,15 @@ import Main.*;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Paint;
+import javafx.util.StringConverter;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 import java.io.IOException;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -26,7 +30,7 @@ public class Controller implements Initializable {
     @FXML
     Button fillLineChartButton;
     @FXML
-    LineChart<String, Number> lineChart;
+    LineChart<String, Long> lineChart;
     @FXML
     CategoryAxis xAxis;
     @FXML
@@ -58,6 +62,16 @@ public class Controller implements Initializable {
     public void threadedSearchFunction(javafx.event.ActionEvent actionEvent){
         searchFunction.restart();
     }
+
+
+    public void addTestData(){
+        XYSeriesGenerator gen = new XYSeriesGenerator();
+        gen.testSeries();
+
+    }
+
+
+
 
     public void clearLineChart(javafx.event.ActionEvent actionEvent) {
         lineChart.getData().clear();
@@ -118,17 +132,10 @@ public class Controller implements Initializable {
 
         //Java, sometimes it really be do like that
 
-        lineChart.setAxisSortingPolicy(LineChart.SortingPolicy.NONE);
-        yAxis.setAutoRanging(true);
-        yAxis.setForceZeroInRange(false);
         xAxis.setAnimated(false);
         yAxis.setAutoRanging(true);
         yAxis.setForceZeroInRange(false);
         lineChart.layout();
-
-
-
-
 
     }
 
@@ -180,7 +187,9 @@ public class Controller implements Initializable {
                 protected void succeeded() {
                     for (XYChart.Series item : getValue()) {
                         lineChart.getData().add(item);
+
                     }
+                    lineChart.layout();
                 }
 
                 @Override
