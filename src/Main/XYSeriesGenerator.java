@@ -48,20 +48,6 @@ public class XYSeriesGenerator {
         return series;
     }
 
-    public XYChart.Series numberTest(StockData stockData) {
-        XYChart.Series series = new XYChart.Series();
-        series.setName(stockData.getStockSymbol());
-        for (StockTick tick : stockData.getStockTicks()) {
-            XYChart.Data tempData = new XYChart.Data();
-            tempData.setXValue(tick.dateTime.getTime());
-            tempData.setYValue(tick.close);
-            series.getData().add(tempData);
-        }
-        return series;
-    }
-
-
-
 
 
 
