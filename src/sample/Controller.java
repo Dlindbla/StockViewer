@@ -70,9 +70,6 @@ public class Controller implements Initializable {
 
     }
 
-
-
-
     public void clearLineChart(javafx.event.ActionEvent actionEvent) {
         lineChart.getData().clear();
         drawnTickers.clear();
@@ -187,10 +184,12 @@ public class Controller implements Initializable {
                 protected void succeeded() {
                     for (XYChart.Series item : getValue()) {
                         lineChart.getData().add(item);
-
                     }
                     lineChart.layout();
+                    lineChart.getData().get(0).getNode().setVisible(false);
                 }
+
+
 
                 @Override
                 protected void failed() {
