@@ -48,7 +48,7 @@
                   </TableView>
                </children>
             </VBox>
-            <Button onAction="#addTestData"  fx:id="flipbutton" layoutY="50.0" mnemonicParsing="false" text="Button" />
+            <Button onAction="#hideHiddenSeriesLegend"  fx:id="flipbutton" layoutY="50.0" mnemonicParsing="false" text="Button" />
          </children>
       </AnchorPane>
       <AnchorPane prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS">

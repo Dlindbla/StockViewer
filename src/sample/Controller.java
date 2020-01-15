@@ -3,9 +3,11 @@ package sample;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Bounds;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.chart.*;
 import Main.*;
@@ -19,10 +21,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class Controller implements Initializable {
     @FXML
@@ -50,28 +49,39 @@ public class Controller implements Initializable {
     @FXML
     Button flipbutton;
 
-    ArrayList<String> drawnTickers = new ArrayList<>();
 
+    ArrayList<String> drawnTickers = new ArrayList<>();
+    XYSeriesGenerator gen = new XYSeriesGenerator();
     private GraphDrawer graphDrawer = new GraphDrawer();
     private SearchFunction searchFunction = new SearchFunction();
+
+    String currentDrawnInterval = "15min";
 
     public void threadedDrawFunction(javafx.event.ActionEvent actionEvent){
         graphDrawer.restart();
     }
+
+
 
     public void threadedSearchFunction(javafx.event.ActionEvent actionEvent){
         searchFunction.restart();
     }
 
 
-    public void addTestData(){
-        XYSeriesGenerator gen = new XYSeriesGenerator();
-        gen.testSeries();
 
+    public void hideHiddenSeriesLegend() {
+        Set<Node> legends = lineChart.lookupAll("Label.chart-legend-item");
+        legends.stream().findFirst().get().setVisible(!legends.stream().findFirst().get().isVisible());
     }
 
-    public void clearLineChart(javafx.event.ActionEvent actionEvent) {
+
+    public void checkAnimation(){
+    }
+
+
+    public void clearLineChart() {
         lineChart.getData().clear();
+        gen.reset();
         drawnTickers.clear();
         yAxis.setUpperBound(100);
         yAxis.setLowerBound(0);
@@ -96,7 +106,6 @@ public class Controller implements Initializable {
         emptySearchWarning.show(parent, boundsInScene.getMaxX(), boundsInScene.getMaxY());
     }
 
-
     public String getTimeSerie() {
         String intervalboxString = intervalCombobox.getSelectionModel().getSelectedItem();
         if (intervalboxString == null) {
@@ -105,15 +114,6 @@ public class Controller implements Initializable {
         ArrayList<String> series = new ArrayList<>(List.of("15min", "5min", "1min", "Monthly", "Weekly", "Daily"));
         ArrayList<String> timeSeries = new ArrayList<>(List.of("TIME_SERIES_INTRADAY", "TIME_SERIES_INTRADAY", "TIME_SERIES_INTRADAY", "TIME_SERIES_MONTHLY", "TIME_SERIES_WEEKLY", "TIME_SERIES_DAILY"));
         return timeSeries.get(series.indexOf(intervalboxString));
-    }
-
-
-    public void reset(javafx.event.ActionEvent actionEvent) {
-        //reset everything to the startup state
-    }
-
-    public void fliplegends(javafx.event.ActionEvent actionEvent){
-        lineChart.setLegendVisible(!lineChart.isLegendVisible());
     }
 
     @Override
@@ -126,10 +126,8 @@ public class Controller implements Initializable {
         symbolColumn.setCellValueFactory(new PropertyValueFactory<>("symbol"));
         priceColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         intervalCombobox.getItems().addAll("15min", "5min", "1min", "Monthly", "Weekly", "Daily");
-
-        //Java, sometimes it really be do like that
-
         xAxis.setAnimated(false);
+        lineChart.setAnimated(false);
         yAxis.setAutoRanging(true);
         yAxis.setForceZeroInRange(false);
         lineChart.layout();
@@ -144,17 +142,18 @@ public class Controller implements Initializable {
                 @Override
                 protected ArrayList<XYChart.Series> call() throws Exception {
                     if (!tickerTable.getItems().isEmpty()) {
+
                         //if user doesn't set an interval time default to 15min
                         String interval = intervalCombobox.getSelectionModel().getSelectedItem();
                         if (interval == null) {
                             interval = "15min";
                         }
+
                         ArrayList<String> symbolStrings = new ArrayList<String>();
-                        //add all stock symbols from tableview to list
+                        //add all stock symbols from tableview to list, skip items already drawn
                         for (searchResultObject item : tickerTable.getItems()) {
                             if (!drawnTickers.contains(item.getSymbol())) {
                                 symbolStrings.add(item.getSymbol());
-                                drawnTickers.add(item.getSymbol());
                             }
                         }
 
@@ -170,7 +169,7 @@ public class Controller implements Initializable {
                             //Feed into the Generator to create a XYChart.Series object
                             stockDataArrayList.add(stockDataObject);
                         }
-                        XYSeriesGenerator gen = new XYSeriesGenerator();
+
                         gen.populateSeries(stockDataArrayList);
                         return gen.getSeries();
 
@@ -182,17 +181,24 @@ public class Controller implements Initializable {
 
                 @Override
                 protected void succeeded() {
+
                     for (XYChart.Series item : getValue()) {
-                        lineChart.getData().add(item);
+                        if (!drawnTickers.contains(item.getName())) {
+                            lineChart.getData().add(item);
+                            drawnTickers.add(item.getName());
+                        }
+
                     }
                     lineChart.layout();
+
+                    //Hide the hiddenseries
                     lineChart.getData().get(0).getNode().setVisible(false);
+                    hideHiddenSeriesLegend();
                 }
-
-
 
                 @Override
                 protected void failed() {
+                    System.out.println("Big error");
                     Throwable error = getException();
                 }
             };
