@@ -17,22 +17,14 @@ public class XYSeriesGenerator {
 
 
     public void populateSeries(Collection<StockData> data) {
+        chartSeries.clear();
+        allDates.clear();
         setAllDates(data);
         ArrayList<StockData> items = new ArrayList<>();
         items.addAll(data);
         Collections.sort(items);
 
-        //Check if the tickers to be added already exist in the chartSeries
-        for(StockData newTicker:data){
-            for(XYChart.Series oldTicker: chartSeries){
-                if (newTicker.getStockSymbol()==oldTicker.getName()){
-                    data.remove(newTicker);
-                }
-            }
-        }
-
         chartSeries.add(createHiddenSeries(data));
-
         for (StockData stockDataObject : items) {
             XYChart.Series tempChart = createXYChart(stockDataObject);
             chartSeries.add(tempChart);

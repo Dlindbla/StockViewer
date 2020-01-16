@@ -1,5 +1,6 @@
 package sample;
 
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
@@ -61,30 +62,69 @@ public class Controller implements Initializable {
         graphDrawer.restart();
     }
 
-
-
     public void threadedSearchFunction(javafx.event.ActionEvent actionEvent){
         searchFunction.restart();
     }
 
-
-
     public void hideHiddenSeriesLegend() {
+        lineChart.getData().get(0).getNode().setVisible(false);
         Set<Node> legends = lineChart.lookupAll("Label.chart-legend-item");
         legends.stream().findFirst().get().setVisible(!legends.stream().findFirst().get().isVisible());
     }
 
 
-    public void checkAnimation(){
+    public void runLaterfillLineChart(ArrayList<XYChart.Series> series){
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                fillLineChart(series);
+            }
+        });
     }
 
+    public void fillLineChart(ArrayList<XYChart.Series> series){
+        System.out.println("ADDING ITEMS TO LINECHART NOW!");
+
+        boolean firstpass = true;
+        for (XYChart.Series item : series) {
+            //Attempts to update the hiddenSeries
+            if(firstpass){
+                try {
+                    System.out.println("UPDATING HIDDENSERIES");
+                    //always update the hidden series
+                    lineChart.getData().set(0, item);
+                    firstpass = false;
+                    continue;
+                }catch (IndexOutOfBoundsException e){firstpass=false;}
+            }
+            if (!drawnTickers.contains(item.getName())) {
+                System.out.println("adding item : "+ item.getName());
+                lineChart.getData().add(item);
+                drawnTickers.add(item.getName());
+
+            }
+        }
+        hideHiddenSeriesLegend();
+        System.out.println("ITEMS ADDED TO LINECHART");
+    }
+
+    public void testbutton(){
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                clearLineChart();
+            }
+        });
+    }
 
     public void clearLineChart() {
+        System.out.println("Clearing LineChart NOW");
         lineChart.getData().clear();
-        gen.reset();
+        //gen.reset();
         drawnTickers.clear();
         yAxis.setUpperBound(100);
         yAxis.setLowerBound(0);
+        System.out.println("LINECHART CLEARED");
     }
 
     public void deleteTicker(javafx.event.ActionEvent actionEvent) {
@@ -92,12 +132,23 @@ public class Controller implements Initializable {
         tickerTable.getItems().remove(objectToRemove);
     }
 
+    //Removes a series from the linechart
+    public void undrawTicker(String tickerName){
+        for(XYChart.Series series: lineChart.getData()){
+            if(series.getName()==tickerName){
+                lineChart.getData().remove(series);
+            }
+        }
+    }
+
+
     public void addTicker(javafx.event.ActionEvent actionEvent) {
         searchResultObject item = leftComboBox.getSelectionModel().getSelectedItem();
         System.out.println(item.getSymbol());
         tickerTable.getItems().add(item);
     }
 
+    //Display a tooltip at the parent node of the caller
     public void displayTooltip(Parent parent, String message) {
         final Tooltip emptySearchWarning = new Tooltip();
         Bounds boundsInScene = parent.localToScreen(parent.getBoundsInLocal());
@@ -106,6 +157,7 @@ public class Controller implements Initializable {
         emptySearchWarning.show(parent, boundsInScene.getMaxX(), boundsInScene.getMaxY());
     }
 
+    //Find the right time interval key for the URLBuilder and JSONParser//Stockdata
     public String getTimeSerie() {
         String intervalboxString = intervalCombobox.getSelectionModel().getSelectedItem();
         if (intervalboxString == null) {
@@ -118,6 +170,8 @@ public class Controller implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        //Start up values
+        //TODO : Move as many lines as possible from here to new.FXML
         SymbolSearch searchResults = new SymbolSearch();
         ObservableList<searchResultObject> observables = searchResults.getObservables();
         lineChart.setCreateSymbols(false);
@@ -142,11 +196,20 @@ public class Controller implements Initializable {
                 @Override
                 protected ArrayList<XYChart.Series> call() throws Exception {
                     if (!tickerTable.getItems().isEmpty()) {
-
                         //if user doesn't set an interval time default to 15min
+                        //TODO: possibly move this to another method or make one
+                        //TODO: Create method do detect if the time interval has been changed
                         String interval = intervalCombobox.getSelectionModel().getSelectedItem();
                         if (interval == null) {
                             interval = "15min";
+                        }
+
+                        //check if the timeInterval has been changed and update it
+                        if(!(currentDrawnInterval == interval)){
+                            currentDrawnInterval = interval;
+                            testbutton();
+                            //drawnTickers is also cleared in testbutton() but needs to be done here due to threading
+                            drawnTickers.clear();
                         }
 
                         ArrayList<String> symbolStrings = new ArrayList<String>();
@@ -181,25 +244,15 @@ public class Controller implements Initializable {
 
                 @Override
                 protected void succeeded() {
-
-                    for (XYChart.Series item : getValue()) {
-                        if (!drawnTickers.contains(item.getName())) {
-                            lineChart.getData().add(item);
-                            drawnTickers.add(item.getName());
-                        }
-
-                    }
-                    lineChart.layout();
-
-                    //Hide the hiddenseries
-                    lineChart.getData().get(0).getNode().setVisible(false);
-                    hideHiddenSeriesLegend();
+                    var results = getValue();
+                    runLaterfillLineChart(results);
                 }
 
                 @Override
                 protected void failed() {
                     System.out.println("Big error");
                     Throwable error = getException();
+                    System.out.println(error);
                 }
             };
         }

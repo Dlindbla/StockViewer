@@ -20,6 +20,12 @@
 .lineChart .chart-vertical-grid-lines {
     -fx-stroke: transparent;
 }
+
+.lineChart .chart-legend{
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
 .basicButton {
     -fx-border-width: 0.3;
     -fx-border-color: dimgray;
