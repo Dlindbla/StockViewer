@@ -55,10 +55,10 @@
          <children>
             <LineChart fx:id="lineChart" prefHeight="400.0" prefWidth="296.0" styleClass="lineChart" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
               <xAxis>
-                <CategoryAxis side="BOTTOM" fx:id="xAxis" />
+                <NumberAxis label="Date" side="BOTTOM" fx:id="xAxis" />
               </xAxis>
               <yAxis>
-                <NumberAxis fx:id="yAxis" side="LEFT" tickUnit="10" />
+                <NumberAxis label="Price" fx:id="yAxis" side="LEFT" tickUnit="10" />
               </yAxis>
             </LineChart>
          </children>

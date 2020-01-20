@@ -32,7 +32,7 @@ public class Controller implements Initializable {
     @FXML
     LineChart<String, Long> lineChart;
     @FXML
-    CategoryAxis xAxis;
+    NumberAxis xAxis;
     @FXML
     NumberAxis yAxis;
     @FXML
@@ -50,7 +50,9 @@ public class Controller implements Initializable {
     @FXML
     Button flipbutton;
 
-
+    //cache downloaded stockdata objects during the session
+    ArrayList<StockData> stockData = new ArrayList<>();
+    //contains the symbol string of the currently displayed tickers
     ArrayList<String> drawnTickers = new ArrayList<>();
     XYSeriesGenerator gen = new XYSeriesGenerator();
     private GraphDrawer graphDrawer = new GraphDrawer();
@@ -72,7 +74,6 @@ public class Controller implements Initializable {
         legends.stream().findFirst().get().setVisible(!legends.stream().findFirst().get().isVisible());
     }
 
-
     public void runLaterfillLineChart(ArrayList<XYChart.Series> series){
         Platform.runLater(new Runnable() {
             @Override
@@ -83,14 +84,11 @@ public class Controller implements Initializable {
     }
 
     public void fillLineChart(ArrayList<XYChart.Series> series){
-        System.out.println("ADDING ITEMS TO LINECHART NOW!");
-
         boolean firstpass = true;
         for (XYChart.Series item : series) {
             //Attempts to update the hiddenSeries
             if(firstpass){
                 try {
-                    System.out.println("UPDATING HIDDENSERIES");
                     //always update the hidden series
                     lineChart.getData().set(0, item);
                     firstpass = false;
@@ -98,7 +96,6 @@ public class Controller implements Initializable {
                 }catch (IndexOutOfBoundsException e){firstpass=false;}
             }
             if (!drawnTickers.contains(item.getName())) {
-                System.out.println("adding item : "+ item.getName());
                 lineChart.getData().add(item);
                 drawnTickers.add(item.getName());
 
@@ -106,6 +103,12 @@ public class Controller implements Initializable {
         }
         hideHiddenSeriesLegend();
         System.out.println("ITEMS ADDED TO LINECHART");
+    }
+
+    public void fillLineChartByDate(ArrayList<XYChart.Series> series){
+        //Get the dates from spinners
+        for(XYChart.Series item: series){
+        }
     }
 
     public void testbutton(){
@@ -118,13 +121,10 @@ public class Controller implements Initializable {
     }
 
     public void clearLineChart() {
-        System.out.println("Clearing LineChart NOW");
         lineChart.getData().clear();
-        //gen.reset();
         drawnTickers.clear();
         yAxis.setUpperBound(100);
         yAxis.setLowerBound(0);
-        System.out.println("LINECHART CLEARED");
     }
 
     public void deleteTicker(javafx.event.ActionEvent actionEvent) {
@@ -168,6 +168,7 @@ public class Controller implements Initializable {
         return timeSeries.get(series.indexOf(intervalboxString));
     }
 
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         //Start up values
@@ -185,6 +186,24 @@ public class Controller implements Initializable {
         yAxis.setAutoRanging(true);
         yAxis.setForceZeroInRange(false);
         lineChart.layout();
+
+        xAxis.setTickLabelFormatter(new StringConverter<>() {
+            @Override
+            public String toString(Number number) {
+                //Check if the alldates has been generated
+                //iterate over all the Dates and assign them
+                if (!gen.getAllDates().isEmpty() && number.intValue() < gen.getAllDates().size()) {
+                    String label = gen.getAllDates().get(number.intValue());
+                    return label;
+                }
+                return null;
+            }
+
+            @Override
+            public Number fromString(String s) {
+                return null;
+            }
+        });
 
     }
 
@@ -220,6 +239,8 @@ public class Controller implements Initializable {
                             }
                         }
 
+                        //TODO : Cache the stockdata in an Arraylist so that it can be re-used when changing date spinners
+                        // Make this its own method someplace else
                         ArrayList<StockData> stockDataArrayList = new ArrayList<StockData>();
                         for (String symbol : symbolStrings) {
                             String timeSeries = getTimeSerie();

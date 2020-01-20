@@ -120,6 +120,7 @@ public class StockData implements Comparable<StockData> {
 
     @Override
     public int compareTo(StockData stockData) {
+        //Sort by which one has the eariler starting date
         Date first = this.stockTicks.stream().findFirst().get().dateTime;
         Date second = stockData.stockTicks.stream().findFirst().get().dateTime;
         return first.compareTo(second);

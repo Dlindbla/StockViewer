@@ -37,5 +37,3 @@ public class StockTick implements Comparable<StockTick> {
     }
 }
 
-    //TODO : SET THE COMPARETO TO USE THE LONGDATE INSTEAD OF DATETIME
-
