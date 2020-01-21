@@ -23,7 +23,7 @@ public class StockData implements Comparable<StockData> {
         return stockTicks;
     }
 
-
+    public String getInterval(){return interval;}
     public String getStockSymbol() {
         return stockSymbol;
     }

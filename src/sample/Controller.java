@@ -5,6 +5,7 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Bounds;
@@ -14,6 +15,7 @@ import javafx.scene.chart.*;
 import Main.*;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Paint;
 import javafx.util.StringConverter;
 import org.json.simple.JSONObject;
@@ -50,21 +52,30 @@ public class Controller implements Initializable {
     @FXML
     Button flipbutton;
 
+    //Searchbox press enter function
+    @FXML
+    public void onEnter(ActionEvent actionEvent){
+        threadedSearchFunction();
+    }
+
     //cache downloaded stockdata objects during the session
-    ArrayList<StockData> stockData = new ArrayList<>();
+    StockDataCache cache = new StockDataCache();
+
     //contains the symbol string of the currently displayed tickers
     ArrayList<String> drawnTickers = new ArrayList<>();
+
     XYSeriesGenerator gen = new XYSeriesGenerator();
     private GraphDrawer graphDrawer = new GraphDrawer();
     private SearchFunction searchFunction = new SearchFunction();
 
+
     String currentDrawnInterval = "15min";
 
-    public void threadedDrawFunction(javafx.event.ActionEvent actionEvent){
+    public void threadedDrawFunction(javafx.event.ActionEvent actionEvent) {
         graphDrawer.restart();
     }
 
-    public void threadedSearchFunction(javafx.event.ActionEvent actionEvent){
+    public void threadedSearchFunction() {
         searchFunction.restart();
     }
 
@@ -74,7 +85,7 @@ public class Controller implements Initializable {
         legends.stream().findFirst().get().setVisible(!legends.stream().findFirst().get().isVisible());
     }
 
-    public void runLaterfillLineChart(ArrayList<XYChart.Series> series){
+    public void runLaterfillLineChart(ArrayList<XYChart.Series> series) {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
@@ -83,35 +94,41 @@ public class Controller implements Initializable {
         });
     }
 
-    public void fillLineChart(ArrayList<XYChart.Series> series){
+    public void fillLineChart(ArrayList<XYChart.Series> series) {
         boolean firstpass = true;
         for (XYChart.Series item : series) {
             //Attempts to update the hiddenSeries
-            if(firstpass){
+            if (firstpass) {
                 try {
                     //always update the hidden series
                     lineChart.getData().set(0, item);
                     firstpass = false;
                     continue;
-                }catch (IndexOutOfBoundsException e){firstpass=false;}
+                } catch (IndexOutOfBoundsException e) {
+                    firstpass = false;
+                }
             }
             if (!drawnTickers.contains(item.getName())) {
                 lineChart.getData().add(item);
                 drawnTickers.add(item.getName());
-
             }
         }
         hideHiddenSeriesLegend();
         System.out.println("ITEMS ADDED TO LINECHART");
     }
 
-    public void fillLineChartByDate(ArrayList<XYChart.Series> series){
+    public void dateFilter() {
         //Get the dates from spinners
-        for(XYChart.Series item: series){
-        }
+        //Get the corresponding index for both dates
+        //xAxis set lowerbound && upperbound
+
+    }
+    public void undoDateFilter(){
+        //undo the dateFilter somehow
+
     }
 
-    public void testbutton(){
+    public void testbutton() {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
@@ -133,9 +150,9 @@ public class Controller implements Initializable {
     }
 
     //Removes a series from the linechart
-    public void undrawTicker(String tickerName){
-        for(XYChart.Series series: lineChart.getData()){
-            if(series.getName()==tickerName){
+    public void undrawTicker(String tickerName) {
+        for (XYChart.Series series : lineChart.getData()) {
+            if (series.getName() == tickerName) {
                 lineChart.getData().remove(series);
             }
         }
@@ -157,17 +174,33 @@ public class Controller implements Initializable {
         emptySearchWarning.show(parent, boundsInScene.getMaxX(), boundsInScene.getMaxY());
     }
 
-    //Find the right time interval key for the URLBuilder and JSONParser//Stockdata
+    //Find the right time interval key for the URLBuilder and JSONParser
     public String getTimeSerie() {
         String intervalboxString = intervalCombobox.getSelectionModel().getSelectedItem();
         if (intervalboxString == null) {
             intervalboxString = "15min";
         }
+        // TODO: Move these lists to an .INI file
         ArrayList<String> series = new ArrayList<>(List.of("15min", "5min", "1min", "Monthly", "Weekly", "Daily"));
         ArrayList<String> timeSeries = new ArrayList<>(List.of("TIME_SERIES_INTRADAY", "TIME_SERIES_INTRADAY", "TIME_SERIES_INTRADAY", "TIME_SERIES_MONTHLY", "TIME_SERIES_WEEKLY", "TIME_SERIES_DAILY"));
         return timeSeries.get(series.indexOf(intervalboxString));
     }
 
+    public ArrayList<StockData> generateStockdataArray(ArrayList<String> symbolStrings, String interval) throws IOException, ParseException, java.text.ParseException {
+        ArrayList<StockData> stockDataArrayList = new ArrayList<StockData>();
+        for (String symbol : symbolStrings) {
+            String timeSeries = getTimeSerie();
+            String url = URLBuilder.queryString(timeSeries, symbol, interval, true);
+            System.out.println(url);
+            //GET JSON object
+            JSONObject jsonData = GetJSONData.getJsonFromUrl(url);
+            //Parse to StockData object
+            StockData stockDataObject = new StockData(jsonData, symbol, interval);
+            //Feed into the Generator to create a XYChart.Series object
+            stockDataArrayList.add(stockDataObject);
+        }
+        return stockDataArrayList;
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -204,11 +237,22 @@ public class Controller implements Initializable {
                 return null;
             }
         });
+        final Node chartBackground = lineChart.lookup(".chart-plot-background");
+        chartBackground.setOnMouseMoved(new EventHandler<MouseEvent>() {
+            @Override public void handle(MouseEvent mouseEvent) {
+                System.out.println(
+                        String.format(
+                                "(%.2f, %.2f)",
+                                xAxis.getValueForDisplay(mouseEvent.getX()),
+                                yAxis.getValueForDisplay(mouseEvent.getY())
+                        )
+                );
+            }
+        });
 
     }
 
     private class GraphDrawer extends Service<ArrayList<XYChart.Series>> {
-
         @Override
         protected Task<ArrayList<XYChart.Series>> createTask() {
             return new Task<ArrayList<XYChart.Series>>() {
@@ -224,39 +268,49 @@ public class Controller implements Initializable {
                         }
 
                         //check if the timeInterval has been changed and update it
-                        if(!(currentDrawnInterval == interval)){
+                        if (!(currentDrawnInterval == interval)) {
                             currentDrawnInterval = interval;
                             testbutton();
                             //drawnTickers is also cleared in testbutton() but needs to be done here due to threading
                             drawnTickers.clear();
                         }
 
-                        ArrayList<String> symbolStrings = new ArrayList<String>();
+                        ArrayList<String> symbolStrings = new ArrayList<>();
                         //add all stock symbols from tableview to list, skip items already drawn
                         for (searchResultObject item : tickerTable.getItems()) {
                             if (!drawnTickers.contains(item.getSymbol())) {
                                 symbolStrings.add(item.getSymbol());
                             }
                         }
-
                         //TODO : Cache the stockdata in an Arraylist so that it can be re-used when changing date spinners
-                        // Make this its own method someplace else
-                        ArrayList<StockData> stockDataArrayList = new ArrayList<StockData>();
-                        for (String symbol : symbolStrings) {
-                            String timeSeries = getTimeSerie();
-                            String url = URLBuilder.queryString(timeSeries, symbol, interval, true);
-                            System.out.println(url);
-                            //GET JSON object
-                            JSONObject jsonData = GetJSONData.getJsonFromUrl(url);
-                            //Parse to StockData object
-                            StockData stockDataObject = new StockData(jsonData, symbol, interval);
-                            //Feed into the Generator to create a XYChart.Series object
-                            stockDataArrayList.add(stockDataObject);
+
+                        ArrayList<StockData> stockDataArrayList = new ArrayList<>();
+                        //Check if the cache contains the stockdata already
+                        for (String item : symbolStrings) {
+                            if (cache.contains(item.concat(interval))) {
+                                int index = cache.indexOf(item.concat(interval));
+                                stockDataArrayList.add((cache.get(index)));
+                            }
+                        }
+                        //remove cached items from symbolStrings
+                        for (StockData item : stockDataArrayList){
+                            if(symbolStrings.contains(item.getStockSymbol())){
+                                symbolStrings.remove(item.getStockSymbol());
+                            }
+                        }
+
+                        ArrayList<StockData> uncachedData = new ArrayList<>();
+                        if(!symbolStrings.isEmpty()) {
+                            uncachedData.addAll(generateStockdataArray(symbolStrings, interval));
+                        }
+                        //cache here-to uncached items
+                        for(var item : uncachedData){
+                            cache.add(item);
+                            stockDataArrayList.add(item);
                         }
 
                         gen.populateSeries(stockDataArrayList);
                         return gen.getSeries();
-
                     } else {
                         displayTooltip(fillLineChartButton, "Please add stonks to the list");
                         return null;
@@ -271,7 +325,7 @@ public class Controller implements Initializable {
 
                 @Override
                 protected void failed() {
-                    System.out.println("Big error");
+                    System.out.println(getValue());
                     Throwable error = getException();
                     System.out.println(error);
                 }
@@ -279,8 +333,7 @@ public class Controller implements Initializable {
         }
     }
 
-
-    private class SearchFunction extends Service<ObservableList<searchResultObject>>{
+    private class SearchFunction extends Service<ObservableList<searchResultObject>> {
         @Override
         protected Task<ObservableList<searchResultObject>> createTask() {
             return new Task<ObservableList<searchResultObject>>() {
@@ -297,11 +350,13 @@ public class Controller implements Initializable {
                         return null;
                     }
                 }
+
                 @Override
-                protected void succeeded(){
+                protected void succeeded() {
                     leftComboBox.getItems().clear(); // clear the previous items from the box
                     leftComboBox.getItems().addAll(getValue()); //add the new once received from the task
                 }
+
                 @Override
                 protected void failed() {
                     Throwable error = getException();
