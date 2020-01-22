@@ -14,6 +14,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
+<?import sample.LineChartWithMarkers?>
 <HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" styleClass="MainBox" stylesheets="@/sample/AppStyle.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
    <children>
       <AnchorPane maxWidth="200" prefHeight="200.0" prefWidth="200.0" styleClass="leftSideSettings">
@@ -46,6 +47,8 @@
                       <TableColumn fx:id="priceColumn" minWidth="0.0" prefWidth="113" text="COMPANY NAME" />
                     </columns>
                   </TableView>
+                   <Button mnemonicParsing="false" onAction="#setZoom" text="ZOOM" prefHeight="26" prefWidth="200"/>
+                   <Button mnemonicParsing="false" onAction="#resetZoom" text="UNZOOM" prefHeight="26" prefWidth="200"/>
                </children>
             </VBox>
             <Button fx:id="flipbutton" layoutY="50.0" mnemonicParsing="false" onAction="#testbutton" text="Button" />
@@ -53,14 +56,14 @@
       </AnchorPane>
       <AnchorPane prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS">
          <children>
-            <LineChart fx:id="lineChart" layoutX="14.0" prefHeight="400.0" prefWidth="296.0" styleClass="lineChart" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="-14.0" AnchorPane.topAnchor="0.0">
+            <LineChartWithMarkers fx:id="lineChart" layoutX="14.0" prefHeight="400.0" prefWidth="296.0" styleClass="lineChart" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="-14.0" AnchorPane.topAnchor="0.0">
               <xAxis>
-                <NumberAxis label="Date" side="BOTTOM" fx:id="xAxis" />
+                <NumberAxis label="Date" side="BOTTOM" fx:id="xAxis"/>
               </xAxis>
               <yAxis>
                 <NumberAxis fx:id="yAxis" label="Price" side="LEFT" tickUnit="10" />
               </yAxis>
-            </LineChart>
+            </LineChartWithMarkers>
          </children>
       </AnchorPane>
    </children>
