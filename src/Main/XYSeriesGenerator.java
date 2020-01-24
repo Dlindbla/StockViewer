@@ -66,6 +66,7 @@ public class XYSeriesGenerator {
         for(StockTick tick: data.getStockTicks()){
             XYChart.Data tickData = new XYChart.Data();
             tickData.setYValue(tick.close);
+            tickData.setExtraValue(tick.rawDate);
             //Get the right position on the Xaxis by using the index of the tickdate from the alldates Array
             tickData.setXValue(allDates.indexOf(tick.rawDate));
             series.getData().add(tickData);
@@ -80,6 +81,7 @@ public class XYSeriesGenerator {
         //Get the arbitrary close value of an item in the collection and assign the hidden series to use this as its value
         double value = data.stream().findFirst().get().getStockTicks().stream().findFirst().get().close;
         XYChart.Series hiddenSeries = new XYChart.Series();
+        hiddenSeries.setName("HiddenSeries");
 
         //hiddenSeries.getData().add(new XYChart.Data("", value));
 

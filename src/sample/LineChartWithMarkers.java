@@ -8,6 +8,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.chart.Axis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.Label;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
@@ -24,8 +25,9 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
     public ObservableList<Data<X, Y>> horizontalMarkers;
     public ObservableList<Data<X, Y>> verticalMarkers;
     public ObservableList<Data<X, Y>> verticalZoomMarkers;
-
     public ObservableList<Data <X, X>> rectangleMarkers;
+
+    public ObservableList<Data<X, Y>> infoBoxes;
 
     public LineChartWithMarkers(@NamedArg("xAxis") Axis<X> xAxis, @NamedArg("yAxis") Axis<Y> yAxis) {
         super(xAxis, yAxis);
@@ -41,13 +43,17 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
 
         rectangleMarkers = FXCollections.observableArrayList(data -> new Observable[] {data.XValueProperty()});
         rectangleMarkers.addListener((InvalidationListener)observable -> layoutPlotChildren());
+
+        infoBoxes = FXCollections.observableArrayList(data -> new Observable[] {data.XValueProperty()});
+        infoBoxes.addListener((InvalidationListener) observable -> layoutPlotChildren());
+
     }
 
     public void addHorizontalValueMarker(Data<X, Y> marker) {
         Objects.requireNonNull(marker, "the marker must not be null");
         if (horizontalMarkers.contains(marker)) return;
         Line line = new Line();
-        marker.setNode(line );
+        marker.setNode(line);
         getPlotChildren().add(line);
         horizontalMarkers.add(marker);
     }
@@ -65,16 +71,18 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
         Objects.requireNonNull(marker, "the marker must not be null");
         if (verticalMarkers.contains(marker)) return;
         Line line = new Line();
+        line.setStyle("-fx-stroke: black; -fx-opacity: 0.4");
+        line.setMouseTransparent(true);
         marker.setNode(line);
         getPlotChildren().add(line);
         verticalMarkers.add(marker);
     }
-
     public void addVerticalZoomMarker(Data<X, Y> marker) {
         Objects.requireNonNull(marker, "the marker must not be null");
         if (verticalZoomMarkers.contains(marker)) return;
         Line line = new Line();
         line.setStyle("-fx-stroke: green; -fx-opacity: 0.4");
+        line.setMouseTransparent(true);
         marker.setNode(line);
         getPlotChildren().add(line);
         verticalZoomMarkers.add(marker);
@@ -86,12 +94,23 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
         Rectangle rectangle = new Rectangle(0,0,0,0);
         rectangle.setStroke(Color.TRANSPARENT);
         rectangle.setFill(Color.GREEN.deriveColor(1, 1, 1, 0.2));
+        rectangle.setMouseTransparent(true);
         marker.setNode(rectangle);
-        marker.getNode().setMouseTransparent(true);
         getPlotChildren().add(rectangle);
         rectangleMarkers.add(marker);
     }
 
+    public void addInfoBox(Data<X, Y> marker){
+        Objects.requireNonNull(marker, "The marker must not be null");
+        if(infoBoxes.contains(marker)) return;
+        Rectangle infoBox = new Rectangle(10,10,10,10);
+        infoBox.setStroke(Color.RED);
+        infoBox.setFill(Color.BLUE.deriveColor(1,1,1,0.2));
+        infoBox.setMouseTransparent(true);
+        marker.setNode(infoBox);
+        getPlotChildren().add(infoBox);
+        infoBoxes.add(marker);
+    }
 
 
 
@@ -128,6 +147,13 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
         rectangleMarkers.clear();
     }
 
+    public void removeAllSeriesLabels(){
+        for(Data<X, Y> marker : infoBoxes){
+            getPlotChildren().remove(marker.getNode());
+            marker.setNode(null);
+        }
+        infoBoxes.clear();
+    }
 
 
 
@@ -166,17 +192,22 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
         }
 
         for (Data<X, X> rectangleMarker : rectangleMarkers) {
-
             Rectangle rectangle = (Rectangle) rectangleMarker.getNode();
             rectangle.setX( getXAxis().getDisplayPosition(rectangleMarker.getXValue()) + 0.5);  // 0.5 for crispness
             rectangle.setWidth( getXAxis().getDisplayPosition(rectangleMarker.getYValue()) - getXAxis().getDisplayPosition(rectangleMarker.getXValue()));
             rectangle.setY(0d);
             rectangle.setHeight(getBoundsInLocal().getHeight());
             rectangle.toBack();
-
         }
 
-
+        for(Data<X, Y> labelMarker : infoBoxes){
+            Rectangle rectangle = (Rectangle) labelMarker.getNode();
+            rectangle.setX(getXAxis().getDisplayPosition(labelMarker.getXValue()) + 0.5);
+            rectangle.setWidth(50);
+            rectangle.setY(getYAxis().getDisplayPosition(labelMarker.getYValue()) - 25);
+            rectangle.setHeight(50);
+            rectangle.toBack();
+        }
     }
 
 }

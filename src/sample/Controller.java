@@ -15,12 +15,11 @@ import javafx.scene.chart.*;
 import Main.*;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.util.StringConverter;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
-
-import javax.swing.*;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
@@ -57,10 +56,7 @@ public class Controller implements Initializable {
         threadedSearchFunction();
     }
 
-
-
     Integer firstZoomCord = null;
-    Integer secondZoomCord = null;
 
     //Function for zooming in on the lineChart
     @FXML
@@ -69,39 +65,47 @@ public class Controller implements Initializable {
         chartBackground.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
-                if (zoomInSet) {
-                    int xValue = xAxis.getValueForDisplay(mouseEvent.getX()).intValue();
-                    //Get the date from the hiddenseries
-                    int dateArraySize = gen.getAllDates().size();
-                    if (xValue < dateArraySize) {
-                        String date = gen.getAllDates().get(xValue);
-                        System.out.println(date);
-                        XYChart.Data item = new XYChart.Data();
-                        item.setYValue(0);
-                        item.setXValue(xValue);
-
-                        if(secondZoomCord == null && firstZoomCord == null){
-                            //set first cord
-                            firstZoomCord = xValue;
-
-                        }else if(secondZoomCord == null){
-                            //set second cord
-                            secondZoomCord = xValue;
+                if(mouseEvent.getButton() == MouseButton.PRIMARY) {
+                    if (mouseEvent.isControlDown()) {
+                        int xValue = xAxis.getValueForDisplay(mouseEvent.getX()).intValue();
+                        //Get the date from the hiddenseries
+                        int dateArraySize = gen.getAllDates().size();
+                        if (xValue < dateArraySize) {
+                            String date = gen.getAllDates().get(xValue);
+                            System.out.println(date);
+                            XYChart.Data item = new XYChart.Data();
+                            item.setYValue(0);
+                            item.setXValue(xValue);
+                            if (firstZoomCord == null) {
+                                //set first cord
+                                firstZoomCord = xValue;
+                            }
                         }
+                    }
+                }else if(mouseEvent.getButton() == MouseButton.SECONDARY){
+                    //Cancel zoomIn if leftclick is pressed
+                    lineChart.removeAllVeritcalZoomMarkers();
+                    lineChart.removeAllRectangleMarkers();
+                    firstZoomCord = null;
+                }
+            }
+        });
 
-                        //If both values are set then zoom in
-                        if(!(secondZoomCord == null) && !(firstZoomCord == null)){
-                            zoomIn(firstZoomCord,secondZoomCord);
-                            lineChart.removeAllVeritcalZoomMarkers();
-                            firstZoomCord = null;
-                            secondZoomCord = null;
-                        }
+        chartBackground.setOnMouseReleased(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                if(mouseEvent.isControlDown()){
+                    if(!(firstZoomCord == null)){
+                        int xValue = xAxis.getValueForDisplay(mouseEvent.getX()).intValue();
+                        zoomIn(firstZoomCord, xValue);
+                        firstZoomCord = null;
+                        lineChart.removeAllVeritcalZoomMarkers();
                     }
                 }
             }
         });
 
-        chartBackground.setOnMouseMoved(new EventHandler<MouseEvent>() {
+        chartBackground.setOnMouseDragged(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
                 //IF the firstZoomInterger hsa been set then create a rectangle spanning from firstZoomintgercords
@@ -112,7 +116,6 @@ public class Controller implements Initializable {
                     System.out.println(lineChart.rectangleMarkers.size());
                     int xValue = xAxis.getValueForDisplay(mouseEvent.getX()).intValue();
                     XYChart.Data item = new XYChart.Data();
-
                     if(xValue>firstZoomCord) {
                         item.setXValue(firstZoomCord);
                         item.setYValue(xValue);
@@ -127,9 +130,55 @@ public class Controller implements Initializable {
                 }
             }
         });
+
+        chartBackground.setOnMouseMoved(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                //USE THE xAXIS VALUE TO FIND A RANDOM SERIES CORRESPONDING YVALUE LOCATION
+                //Get the X cord of the mouse and round to the nearest integer value
+                //Get the Y values of each series with x cord value
+
+                //We round the mouse cords to Integer so that the line wont flicker or disappear if the mouse if between
+                //two value on the xAxis
+                Number xMouseCord = mouseEvent.getX();
+                int xValue = xAxis.getValueForDisplay(xMouseCord.intValue()).intValue();
+
+                lineChart.removeAllVerticalValueMarkers();
+                lineChart.addVerticalValueMarker(new XYChart.Data<>(xValue, 0));
+                lineChart.removeAllSeriesLabels();
+                int yValue = yAxis.getValueForDisplay(xValue).intValue();
+
+
+                //TODO : IMPROVE THIS TO BE FASTER, THIS IS GARBAGE
+                if(!lineChart.getData().isEmpty()) {
+                    for (XYChart.Series series : lineChart.getSeries()) {
+                        if (!(series.getName() == "HiddenSeries")) {
+                            if (xValue < series.getData().size()) {
+                                for (Object dataItem : series.getData()) {
+                                    var item = (XYChart.Data<Number, Number>) dataItem;
+                                    if (item.getXValue().intValue() == xValue) {
+                                        lineChart.addInfoBox(new XYChart.Data<>(xValue, item.getYValue()));
+                                        continue;
+                                        //TODO : Create a label inside of the rectangle that displays the current price
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        chartBackground.setOnMouseExited(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                lineChart.removeAllVeritcalZoomMarkers();
+                lineChart.removeAllVerticalValueMarkers();
+                lineChart.removeAllRectangleMarkers();
+            }
+        });
+
     }
-
-
 
     //Boolean to check if user intends to use zoom in function
     boolean zoomInSet = false;
@@ -155,17 +204,10 @@ public class Controller implements Initializable {
     }
 
     public void hideHiddenSeriesLegend() {
-        //THIS MIGHT RESULT IN A BUG IF USER INPUTS A MARKERLINE BEFORE LOADING ANY TICKERS
-        //OR IF THE USER THEN LOADS A TICKER IT MIGHT CAUSE THE LINE TO BE OVERWRITTEN
-        /*
-        XYChart.Series item = (XYChart.Series) lineChart.getData().get(0);
-        item.getNode().setVisible(false);
-        */
-
+        //Sets the hiddenSeries legend to invisible
         lineChart.getSeries().get(0).getNode().setVisible(false);
         Set<Node> legends = lineChart.lookupAll("Label.chart-legend-item");
         legends.stream().findFirst().get().setVisible(!legends.stream().findFirst().get().isVisible());
-
     }
 
     public void runLaterfillLineChart(ArrayList<XYChart.Series> series) {
@@ -193,6 +235,7 @@ public class Controller implements Initializable {
             }
             if (!drawnTickers.contains(item.getName())) {
                 lineChart.getData().add(item);
+                item.getNode().setMouseTransparent(true);
                 drawnTickers.add(item.getName());
             }
         }
@@ -202,13 +245,10 @@ public class Controller implements Initializable {
     }
 
     public void setZoom(){
-        //SET THE STATE OF THE ZOOM LINES TO DEFAULT
-        //IF USERS CLICKS THE LINECHART SETS FIRST LINE AND THEN SECOND LINE
-        //ONCE BOTH LINES ARE SET WILL USE SET LOWER AND UPPER BOUND TO ZOOM IN
+        //Flips the zoom in boolean and clears zoom in cords
         zoomInSet = !zoomInSet;
         if(!zoomInSet){
             firstZoomCord = null;
-            secondZoomCord = null;
         }
     }
 
@@ -221,22 +261,27 @@ public class Controller implements Initializable {
         //The amount of ticks displayed
         int rangeSize;
 
-        if(firstValue>secondValue){
-            xAxis.setUpperBound(firstValue);
-            xAxis.setLowerBound(secondValue);
-            rangeSize = firstValue - secondValue;
-        }
-        else{
-            xAxis.setLowerBound(firstValue);
-            xAxis.setUpperBound(secondValue);
-            rangeSize = secondValue - firstValue;
-        }
-        //dynamically set the this to be the range of the displayed area divided by 10
-        xAxis.setTickUnit(rangeSize/10);
+        //if the difference is less than the method will not zoom
 
+        if(Math.abs((firstValue-secondValue))>=3) {
+            if (firstValue > secondValue) {
+                xAxis.setUpperBound(firstValue);
+                xAxis.setLowerBound(secondValue);
+                rangeSize = firstValue - secondValue;
+            } else {
+                xAxis.setLowerBound(firstValue);
+                xAxis.setUpperBound(secondValue);
+                rangeSize = secondValue - firstValue;
+            }
+            //Sets the amount of ticks displayed
+            xAxis.setTickUnit(rangeSize / 10);
+            if (rangeSize < 10) {
+                xAxis.setTickUnit(1);
+            }
+        }
     }
+
     public void resetZoom(){
-        //.removeAllRectangleMarkers();
         lineChart.removeAllVeritcalZoomMarkers();
         xAxis.setAutoRanging(true);
     }
@@ -278,7 +323,7 @@ public class Controller implements Initializable {
         emptySearchWarning.show(parent, boundsInScene.getMaxX(), boundsInScene.getMaxY());
     }
 
-    //Find the right time interval key for the URLBuilder and JSONParser
+    //TODO: REPLACE THIS SO THAT THE STOCKDATA DOESNT NEED A KEY AND INSTEAD PEEKS INTO THE KEYSETS DATA TO FIND THE RIGHT KEY
     public String getTimeSerie() {
         String intervalboxString = intervalCombobox.getSelectionModel().getSelectedItem();
         if (intervalboxString == null) {
@@ -290,6 +335,7 @@ public class Controller implements Initializable {
         return timeSeries.get(series.indexOf(intervalboxString));
     }
 
+    //TODO: MOVE THIS SOMEWHERE ELSE
     public ArrayList<StockData> generateStockdataArray(ArrayList<String> symbolStrings, String interval) throws IOException, ParseException, java.text.ParseException {
         ArrayList<StockData> stockDataArrayList = new ArrayList<StockData>();
         for (String symbol : symbolStrings) {
@@ -305,6 +351,15 @@ public class Controller implements Initializable {
         }
         return stockDataArrayList;
     }
+
+    public void createPearsonValue(){
+        PearsonCorrelation pCorr = new PearsonCorrelation();
+        double pCorrelationDouble = pCorr.calculateCorrelation(lineChart.getSeries().get(1),lineChart.getSeries().get(2));
+        System.out.println("The pearson Correlation between the items is : " + pCorrelationDouble);
+    }
+
+
+
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -336,15 +391,11 @@ public class Controller implements Initializable {
                 }
                 return null;
             }
-
             @Override
             public Number fromString(String s) {
                 return null;
             }
         });
-
-        //Prints the Date value of the coordinates the mouse is hovering
-
     }
 
     private class GraphDrawer extends Service<ArrayList<XYChart.Series>> {
@@ -377,10 +428,9 @@ public class Controller implements Initializable {
                                 symbolStrings.add(item.getSymbol());
                             }
                         }
-                        //TODO : Cache the stockdata in an Arraylist so that it can be re-used when changing date spinners
 
-                        ArrayList<StockData> stockDataArrayList = new ArrayList<>();
                         //Check if the cache contains the stockdata already
+                        ArrayList<StockData> stockDataArrayList = new ArrayList<>();
                         for (String item : symbolStrings) {
                             if (cache.contains(item.concat(interval))) {
                                 int index = cache.indexOf(item.concat(interval));
@@ -393,7 +443,7 @@ public class Controller implements Initializable {
                                 symbolStrings.remove(item.getStockSymbol());
                             }
                         }
-
+                        //Set up uncached items for caching
                         ArrayList<StockData> uncachedData = new ArrayList<>();
                         if(!symbolStrings.isEmpty()) {
                             uncachedData.addAll(generateStockdataArray(symbolStrings, interval));
@@ -420,7 +470,6 @@ public class Controller implements Initializable {
 
                 @Override
                 protected void failed() {
-                    System.out.println(getValue());
                     Throwable error = getException();
                     System.out.println(error);
                 }
@@ -445,13 +494,11 @@ public class Controller implements Initializable {
                         return null;
                     }
                 }
-
                 @Override
                 protected void succeeded() {
                     leftComboBox.getItems().clear(); // clear the previous items from the box
                     leftComboBox.getItems().addAll(getValue()); //add the new once received from the task
                 }
-
                 @Override
                 protected void failed() {
                     Throwable error = getException();

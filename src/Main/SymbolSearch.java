@@ -2,13 +2,9 @@ package Main;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.MenuItem;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
-
-import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;

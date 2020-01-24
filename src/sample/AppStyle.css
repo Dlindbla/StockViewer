@@ -9,6 +9,12 @@
     -fx-border-color: dimgray;
     -fx-border-width: 2px;
 }
+
+.lineChart {
+    -fx-border-color: dimgrey;
+    -fx-border-width:  0.5;
+}
+
 .lineChart .chart-series-line {
     -fx-stroke-width: 2px;
 }
