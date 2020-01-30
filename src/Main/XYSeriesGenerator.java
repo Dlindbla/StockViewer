@@ -4,12 +4,10 @@ import javafx.scene.chart.XYChart;
 
 import java.util.*;
 
-
 public class XYSeriesGenerator {
 
     ArrayList<XYChart.Series> chartSeries = new ArrayList<>();
     ArrayList<String> allDates = new ArrayList<>();
-
 
     public ArrayList<XYChart.Series> getSeries(){
         return chartSeries;
@@ -18,20 +16,24 @@ public class XYSeriesGenerator {
     public ArrayList<String> getAllDates(){return allDates;}
 
     public void populateSeries(Collection<StockData> data) {
+        //Clear all previous data
         chartSeries.clear();
         allDates.clear();
+        //Collect all dates present in stockdata
         setAllDates(data);
+        //set all dates to another arraylist and sorts them
         ArrayList<StockData> items = new ArrayList<>();
         items.addAll(data);
         Collections.sort(items);
 
-        chartSeries.add(createHiddenSeries(data));
+        //create the hiddenseries using the sorted list of all dates
+        chartSeries.add(createHiddenSeries(items));
+        //iterate over all the stockdata objects and create XYCHART.series out of them
         for (StockData stockDataObject : items) {
             XYChart.Series tempChart = createXYSeries(stockDataObject);
             chartSeries.add(tempChart);
         }
     }
-
 
     public XYChart.Series createXYChart(StockData stockData) {
         XYChart.Series series = new XYChart.Series();
@@ -59,7 +61,6 @@ public class XYSeriesGenerator {
         chartSeries.clear();
     }
 
-
     public XYChart.Series createXYSeries(StockData data){
         XYChart.Series series = new XYChart.Series();
         series.setName(data.getStockSymbol());
@@ -74,17 +75,13 @@ public class XYSeriesGenerator {
         return series;
     }
 
-
-
     //Create a hidden series that contains all the values of the
     public XYChart.Series createHiddenSeries(Collection<StockData> data){
         //Get the arbitrary close value of an item in the collection and assign the hidden series to use this as its value
         double value = data.stream().findFirst().get().getStockTicks().stream().findFirst().get().close;
         XYChart.Series hiddenSeries = new XYChart.Series();
         hiddenSeries.setName("HiddenSeries");
-
         //hiddenSeries.getData().add(new XYChart.Data("", value));
-
         for (int i = 0; i < allDates.size(); i++) {
             String date = allDates.get(i);
             XYChart.Data dataPoint = new XYChart.Data(i,value);
@@ -92,6 +89,5 @@ public class XYSeriesGenerator {
         }
         return hiddenSeries;
     }
-
 
 }

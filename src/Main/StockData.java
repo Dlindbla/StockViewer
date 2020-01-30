@@ -54,8 +54,6 @@ public class StockData implements Comparable<StockData> {
         JSONObject stockData = (JSONObject) JSONData;
 
         JSONObject data = (JSONObject) stockData.get(JSONkey);
-
-
         System.out.println(JSONkey);
         for (Object tick : data.keySet()) {
             JSONObject tempJSON = (JSONObject) data.get(tick);
@@ -103,20 +101,9 @@ public class StockData implements Comparable<StockData> {
         return resultDate;
     }
 
-
     public void sortArray() {
         Collections.sort(stockTicks);
     }
-
-    public ArrayList<String> getArrayDates() {
-        ArrayList<String> dates = new ArrayList<>();
-        for (StockTick tick : stockTicks) {
-            String tempString = String.format("%s", tick.dateTime);
-            dates.add(tempString);
-        }
-        return dates;
-    }
-
 
     @Override
     public int compareTo(StockData stockData) {
