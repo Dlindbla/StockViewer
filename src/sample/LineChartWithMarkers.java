@@ -38,9 +38,7 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
     public ObservableList<Data<X, Y>> verticalMarkers;
     public ObservableList<Data<X, Y>> verticalZoomMarkers;
     public ObservableList<Data <X, X>> rectangleMarkers;
-
     public ObservableList<Data<X, Y>> infoBoxes;
-
     public ObservableList<Data<X, Y>> stackPanes;
 
     public LineChartWithMarkers(@NamedArg("xAxis") Axis<X> xAxis, @NamedArg("yAxis") Axis<Y> yAxis) {
@@ -285,6 +283,31 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
     *
     * */
 
+    // TODO : CHANGE THIS TO TAKE A SERIES AS PARAMETER?
+    public boolean containsSeries(String searchString){
+        //checks if the linechart currently contains a series with the same name as searchString
+        for(XYChart.Series series : this.getSeries()){
+            if(series.getName() == searchString) return true;
+        }
+        return false;
+    }
+
+    public void zoomIn(int firstCord, int secondCord){
+
+
+
+
+
+
+
+
+
+
+
+
+
+    }
+
 
     public void hideHiddenSeries(){
         this.getSeries().get(0).getNode().setVisible(false);
@@ -302,29 +325,29 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
         this.getData().clear();
     }
 
-    public ArrayList<Data<Number, Number>> getMarkersForXValue(int index){
-        ArrayList<XYChart.Data<Number,Number>> arrayList = new ArrayList<>();
-        if(!this.getData().isEmpty()) {
-            for (XYChart.Series series : this.getSeries()) {
-                if (!(series.getName() == "HiddenSeries")) {
-                    if (index < series.getData().size()) {
-                        for (Object dataItem : series.getData()) {
-                            var item = (XYChart.Data<Number, Number>) dataItem;
-                            if (item.getXValue().intValue() == index) {
-                                XYChart.Data<Number, Number> xyData = new XYChart.Data<>();
-                                xyData.setYValue(item.getYValue());
-                                xyData.setXValue(index);
-                                xyData.setExtraValue(series.getName());
-                                arrayList.add(xyData);
-                                //TODO : Create a label inside of the rectangle that displays the current price
-                            }
-                        }
-                    }
+    public void fillLineChart(ArrayList<XYChart.Series> series) {
+        boolean firstpass = true;
+        for (XYChart.Series item : series) {
+            //Attempts to update the hiddenSeries
+            if (firstpass) {
+                try {
+                    //always update the hidden series
+                    this.getData().set(0, item);
+                    item.getNode().setMouseTransparent(true);
+                    firstpass = false;
+                    continue;
+                } catch (IndexOutOfBoundsException e) {
+                    firstpass = false;
                 }
             }
+            if(!this.containsSeries(item.getName())){
+                this.getData().add(item);
+                item.getNode().setMouseTransparent(true);
+            }
         }
-        return arrayList;
+        this.hideHiddenSeries();
     }
+
 
 
     //A method that creates all PearssonsCorrelation valeus for all combinations of series in the linechart

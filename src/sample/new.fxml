@@ -44,7 +44,7 @@
                <children>
                   <AnchorPane maxWidth="200" prefHeight="200.0" prefWidth="200.0" styleClass="leftSideSettings">
                      <children>
-                        <Button mnemonicParsing="false" onAction="#clearLineChart" styleClass="basicButton" text="CLEAR" AnchorPane.leftAnchor="50" AnchorPane.rightAnchor="50" AnchorPane.topAnchor="10" />
+                        <Button mnemonicParsing="false" onAction="#queueLineChartClear" styleClass="basicButton" text="CLEAR" AnchorPane.leftAnchor="50" AnchorPane.rightAnchor="50" AnchorPane.topAnchor="10" />
                         <Button fx:id="fillLineChartButton" layoutY="33.0" mnemonicParsing="false" onAction="#threadedDrawFunction" prefWidth="100.0" styleClass="basicButton" text="LOAD TICKERS" AnchorPane.leftAnchor="50" AnchorPane.rightAnchor="50" AnchorPane.topAnchor="50" />
                         <VBox layoutX="13.0" layoutY="96.0" prefHeight="306.0" prefWidth="174.0">
                            <children>
