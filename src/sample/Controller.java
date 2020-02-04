@@ -12,9 +12,8 @@ import Main.*;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.StringConverter;
-import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
-import java.io.IOException;
+
 import java.net.URL;
 import java.util.*;
 
@@ -24,11 +23,11 @@ public class Controller implements Initializable {
     @FXML
     Button fillLineChartButton;
     @FXML
-    LineChartWithMarkers<Number, Number> lineChart;
-    @FXML
     NumberAxis xAxis;
     @FXML
     NumberAxis yAxis;
+    @FXML
+    LineChartWithMarkers<Number, Number> lineChart;
     @FXML
     TextField leftTextField;
     @FXML
@@ -44,99 +43,30 @@ public class Controller implements Initializable {
     @FXML
     Button flipbutton;
 
+
     //Searchbox press enter function
     @FXML
-    public void onEnter(ActionEvent actionEvent){
+    public void onEnter(){
         threadedSearchFunction();
     }
 
-    Integer firstZoomCord = null;
-
-    //an ArrayList for saving the stock values for the firstZoomCord Location
-    ArrayList<XYChart.Data<Number,Number>> startValues = new ArrayList<>();
-    @FXML
     LineChartMouseController lineChartMouseController = new LineChartMouseController();
-
-    //cache downloaded stockdata objects during the session
     StockDataCache cache = new StockDataCache();
-
-    //contains the symbol string of the currently displayed tickers
-    ArrayList<String> drawnTickers = new ArrayList<>();
-
     XYSeriesGenerator gen = new XYSeriesGenerator();
     private GraphDrawer graphDrawer = new GraphDrawer();
     private SearchFunction searchFunction = new SearchFunction();
 
     String currentDrawnInterval = "15min";
 
-    public void threadedDrawFunction(javafx.event.ActionEvent actionEvent) {
+    public void threadedDrawFunction() {
         graphDrawer.restart();
     }
-
     public void threadedSearchFunction() {
         searchFunction.restart();
     }
 
-
-    public void runLaterfillLineChart(ArrayList<XYChart.Series> series) {
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                fillLineChart(series);
-            }
-        });
-    }
-
-    public void fillLineChart(ArrayList<XYChart.Series> series) {
-        boolean firstpass = true;
-        for (XYChart.Series item : series) {
-            //Attempts to update the hiddenSeries
-            if (firstpass) {
-                try {
-                    //always update the hidden series
-                    lineChart.getData().set(0, item);
-                    item.getNode().setMouseTransparent(true);
-                    firstpass = false;
-                    continue;
-                } catch (IndexOutOfBoundsException e) {
-                    firstpass = false;
-                }
-            }
-            if (!drawnTickers.contains(item.getName())) {
-                lineChart.getData().add(item);
-                item.getNode().setMouseTransparent(true);
-                drawnTickers.add(item.getName());
-            }
-        }
-        lineChart.hideHiddenSeries();
-        xAxis.setUpperBound(gen.getAllDates().size());
-    }
-
-
-    public void zoomIn(int firstValue, int secondValue){
-        lineChart.removeAllRectangleMarkers();
-        lineChart.setAnimated(true);
-        xAxis.setAutoRanging(false);
-        xAxis.setForceZeroInRange(false);
-        //The amount of ticks displayed
-        int rangeSize;
-        //if the difference is less than the method will not zoom
-        if(Math.abs((firstValue-secondValue))>=3) {
-            if (firstValue > secondValue) {
-                xAxis.setUpperBound(firstValue);
-                xAxis.setLowerBound(secondValue);
-                rangeSize = firstValue - secondValue;
-            } else {
-                xAxis.setLowerBound(firstValue);
-                xAxis.setUpperBound(secondValue);
-                rangeSize = secondValue - firstValue;
-            }
-            //Sets the amount of ticks displayed
-            xAxis.setTickUnit(rangeSize / 10);
-            if (rangeSize < 10) {
-                xAxis.setTickUnit(1);
-            }
-        }
+    public void fillLineChart(ArrayList<XYChart.Series> series){
+        lineChart.fillLineChart(series);
     }
 
     public void resetZoom(){
@@ -148,16 +78,9 @@ public class Controller implements Initializable {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
-                lineChart.fullClear();
+                lineChart.getData().clear();
             }
         });
-    }
-
-    public void clearLineChart() {
-        lineChart.fullClear();
-        drawnTickers.clear();
-        yAxis.setUpperBound(100);
-        yAxis.setLowerBound(0);
     }
 
     public void deleteTicker(javafx.event.ActionEvent actionEvent) {
@@ -181,14 +104,10 @@ public class Controller implements Initializable {
         return timeSeries.get(series.indexOf(intervalboxString));
     }
 
-
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        //Start up values
+
         //TODO : Move as many lines as possible from here to new.FXML
-        SymbolSearch searchResults = new SymbolSearch();
-        ObservableList<searchResultObject> observables = searchResults.getObservables();
-        leftComboBox.setItems(observables);
         tickerTable.setPlaceholder(new Label("NO TICKERS SELECTED"));
         symbolColumn.setCellValueFactory(new PropertyValueFactory<>("symbol"));
         priceColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -221,24 +140,27 @@ public class Controller implements Initializable {
                 protected ArrayList<XYChart.Series> call() throws Exception {
                     if (!tickerTable.getItems().isEmpty()) {
                         //if user doesn't set an interval time default to 15min
+
                         String interval = intervalCombobox.getSelectionModel().getSelectedItem();
                         if (interval == null) {
                             interval = "15min";
                         }
+
+                        boolean redraw = false;
                         //check if the timeInterval has been changed and update it
                         if (!(currentDrawnInterval == interval)) {
                             currentDrawnInterval = interval;
                             queueLineChartClear();
-                            //drawnTickers is also cleared in queueLineChartClear() but needs to be done here due to threading
-                            drawnTickers.clear();
+                            redraw = true;
+
                         }
 
                         ArrayList<String> symbolStrings = new ArrayList<>();
+
                         //add all stock symbols from tableview to list, skip items already drawn
-                        for (searchResultObject item : tickerTable.getItems()) {
-                            if (!drawnTickers.contains(item.getSymbol())) {
-                                symbolStrings.add(item.getSymbol());
-                            }
+
+                        for(searchResultObject item : tickerTable.getItems()) {
+                            symbolStrings.add(item.getSymbol());
                         }
 
                         //Check if the cache contains the stockdata already
@@ -249,6 +171,7 @@ public class Controller implements Initializable {
                                 stockDataArrayList.add((cache.get(index)));
                             }
                         }
+
                         //remove cached items from symbolStrings
                         for (StockData item : stockDataArrayList){
                             if(symbolStrings.contains(item.getStockSymbol())){
@@ -258,14 +181,15 @@ public class Controller implements Initializable {
                         //Set up uncached items for caching
                         ArrayList<StockData> uncachedData = new ArrayList<>();
                         if(!symbolStrings.isEmpty()) {
-                            uncachedData.addAll(StockDataGenerator.getArrayList(symbolStrings, interval,getTimeSerie()));
+                            uncachedData.addAll(StockDataGenerator.getArrayList(symbolStrings, interval, getTimeSerie()));
                         }
                         //cache here-to uncached items
-                        for(var item : uncachedData){
+                        for(var item : uncachedData) {
                             cache.add(item);
                             stockDataArrayList.add(item);
                         }
 
+                        queueLineChartClear();
                         gen.populateSeries(stockDataArrayList);
                         return gen.getSeries();
                     } else {
@@ -288,6 +212,7 @@ public class Controller implements Initializable {
                 protected void failed() {
                     Throwable error = getException();
                     System.out.println(error);
+
                 }
             };
         }
@@ -321,4 +246,5 @@ public class Controller implements Initializable {
             };
         }
     }
+
 }

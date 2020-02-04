@@ -9,6 +9,9 @@ public class XYSeriesGenerator {
     ArrayList<XYChart.Series> chartSeries = new ArrayList<>();
     ArrayList<String> allDates = new ArrayList<>();
 
+    //A hashMap for looking up the yValues for each series given an index integer from the xAxis
+    public HashMap<Integer, List<XYChart.Data<Number, Number>>> hashMap = new HashMap<>();
+
     public ArrayList<XYChart.Series> getSeries(){
         return chartSeries;
     }
@@ -17,6 +20,7 @@ public class XYSeriesGenerator {
 
     public void populateSeries(Collection<StockData> data) {
         //Clear all previous data
+        hashMap.clear();
         chartSeries.clear();
         allDates.clear();
         //Collect all dates present in stockdata
@@ -27,7 +31,7 @@ public class XYSeriesGenerator {
         Collections.sort(items);
 
         //create the hiddenseries using the sorted list of all dates
-        chartSeries.add(createHiddenSeries(items));
+        //chartSeries.add(createHiddenSeries(items));
         //iterate over all the stockdata objects and create XYCHART.series out of them
         for (StockData stockDataObject : items) {
             XYChart.Series tempChart = createXYSeries(stockDataObject);
@@ -59,6 +63,7 @@ public class XYSeriesGenerator {
     public void reset(){
         allDates.clear();
         chartSeries.clear();
+        hashMap.clear();
     }
 
     public XYChart.Series createXYSeries(StockData data){
@@ -67,10 +72,16 @@ public class XYSeriesGenerator {
         for(StockTick tick: data.getStockTicks()){
             XYChart.Data tickData = new XYChart.Data();
             tickData.setYValue(tick.close);
-            tickData.setExtraValue(tick.rawDate);
+            tickData.setExtraValue(data.getStockSymbol());
             //Get the right position on the Xaxis by using the index of the tickdate from the alldates Array
-            tickData.setXValue(allDates.indexOf(tick.rawDate));
+            int xValue = allDates.indexOf(tick.rawDate);
+            tickData.setXValue(xValue);
             series.getData().add(tickData);
+
+            List<XYChart.Data<Number,Number>> list = hashMap.get(xValue);
+            if(list == null) hashMap.put(xValue, list = new ArrayList<>());
+            list.add(tickData);
+
         }
         return series;
     }
