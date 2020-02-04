@@ -12,7 +12,7 @@ import Main.*;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.StringConverter;
-import org.json.simple.parser.ParseException;
+
 
 import java.net.URL;
 import java.util.*;
@@ -46,7 +46,7 @@ public class Controller implements Initializable {
 
     //Searchbox press enter function
     @FXML
-    public void onEnter(){
+    public void onEnter() {
         threadedSearchFunction();
     }
 
@@ -61,34 +61,31 @@ public class Controller implements Initializable {
     public void threadedDrawFunction() {
         graphDrawer.restart();
     }
+
     public void threadedSearchFunction() {
         searchFunction.restart();
     }
 
-    public void fillLineChart(ArrayList<XYChart.Series> series){
+    public void fillLineChart(ArrayList<XYChart.Series<Number, Number>> series) {
         lineChart.fillLineChart(series);
     }
 
-    public void resetZoom(){
+    public void resetZoom() {
         lineChart.removeAllVeritcalZoomMarkers();
         xAxis.setAutoRanging(true);
     }
 
     public void queueLineChartClear() {
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                lineChart.getData().clear();
-            }
-        });
+        Platform.runLater(() -> lineChart.getData().clear());
+        gen.reset();
     }
 
-    public void deleteTicker(javafx.event.ActionEvent actionEvent) {
+    public void deleteTicker() {
         Object objectToRemove = tickerTable.getSelectionModel().getSelectedItem();
         tickerTable.getItems().remove(objectToRemove);
     }
 
-    public void addTicker(javafx.event.ActionEvent actionEvent) {
+    public void addTicker() {
         searchResultObject item = leftComboBox.getSelectionModel().getSelectedItem();
         tickerTable.getItems().add(item);
     }
@@ -113,18 +110,18 @@ public class Controller implements Initializable {
         priceColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         intervalCombobox.getItems().addAll("15min", "5min", "1min", "Monthly", "Weekly", "Daily");
         yAxis.setForceZeroInRange(false);
-        lineChartMouseController.setMouseController(new ActionEvent(),lineChart,xAxis,yAxis,gen);
+        lineChartMouseController.setMouseController(lineChart, xAxis, yAxis, gen);
         xAxis.setTickLabelFormatter(new StringConverter<>() {
             @Override
             public String toString(Number number) {
                 //Check if the alldates has been generated
                 //iterate over all the Dates and assign them
                 if (!gen.getAllDates().isEmpty() && number.intValue() < gen.getAllDates().size()) {
-                    String label = gen.getAllDates().get(number.intValue());
-                    return label;
+                    return gen.getAllDates().get(number.intValue());
                 }
                 return null;
             }
+
             @Override
             public Number fromString(String s) {
                 return null;
@@ -132,12 +129,12 @@ public class Controller implements Initializable {
         });
     }
 
-    private class GraphDrawer extends Service<ArrayList<XYChart.Series>> {
+    private class GraphDrawer extends Service<ArrayList<XYChart.Series<Number, Number>>> {
         @Override
-        protected Task<ArrayList<XYChart.Series>> createTask() {
-            return new Task<ArrayList<XYChart.Series>>() {
+        protected Task<ArrayList<XYChart.Series<Number, Number>>> createTask() {
+            return new Task<>() {
                 @Override
-                protected ArrayList<XYChart.Series> call() throws Exception {
+                protected ArrayList<XYChart.Series<Number, Number>> call() throws Exception {
                     if (!tickerTable.getItems().isEmpty()) {
                         //if user doesn't set an interval time default to 15min
 
@@ -146,20 +143,17 @@ public class Controller implements Initializable {
                             interval = "15min";
                         }
 
-                        boolean redraw = false;
                         //check if the timeInterval has been changed and update it
-                        if (!(currentDrawnInterval == interval)) {
+                        if (!(currentDrawnInterval.equals(interval))) {
                             currentDrawnInterval = interval;
                             queueLineChartClear();
-                            redraw = true;
-
                         }
 
                         ArrayList<String> symbolStrings = new ArrayList<>();
 
                         //add all stock symbols from tableview to list, skip items already drawn
 
-                        for(searchResultObject item : tickerTable.getItems()) {
+                        for (searchResultObject item : tickerTable.getItems()) {
                             symbolStrings.add(item.getSymbol());
                         }
 
@@ -173,18 +167,19 @@ public class Controller implements Initializable {
                         }
 
                         //remove cached items from symbolStrings
-                        for (StockData item : stockDataArrayList){
-                            if(symbolStrings.contains(item.getStockSymbol())){
+                        for (StockData item : stockDataArrayList) {
+                            if (symbolStrings.contains(item.getStockSymbol())) {
                                 symbolStrings.remove(item.getStockSymbol());
                             }
                         }
                         //Set up uncached items for caching
                         ArrayList<StockData> uncachedData = new ArrayList<>();
-                        if(!symbolStrings.isEmpty()) {
+                        if (!symbolStrings.isEmpty()) {
                             uncachedData.addAll(StockDataGenerator.getArrayList(symbolStrings, interval, getTimeSerie()));
+
                         }
                         //cache here-to uncached items
-                        for(var item : uncachedData) {
+                        for (var item : uncachedData) {
                             cache.add(item);
                             stockDataArrayList.add(item);
                         }
@@ -199,19 +194,13 @@ public class Controller implements Initializable {
 
                 @Override
                 protected void succeeded() {
-                    var results = getValue();
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            fillLineChart(results);
-                        }
-                    });
+                    ArrayList<XYChart.Series<Number, Number>> results = getValue();
+                    Platform.runLater(() -> fillLineChart(results));
                 }
 
                 @Override
                 protected void failed() {
-                    Throwable error = getException();
-                    System.out.println(error);
+                    getException();
 
                 }
             };
@@ -228,23 +217,23 @@ public class Controller implements Initializable {
                     if (!(searchString.isEmpty())) {
                         SymbolSearch searchResults = new SymbolSearch();
                         searchResults.search(searchString);
-                        ObservableList<searchResultObject> observables = searchResults.getObservables();
-                        return observables;
+                        return searchResults.getObservables();
                     } else {
                         return null;
                     }
                 }
+
                 @Override
                 protected void succeeded() {
                     leftComboBox.getItems().clear(); // clear the previous items from the box
                     leftComboBox.getItems().addAll(getValue()); //add the new once received from the task
                 }
+
                 @Override
                 protected void failed() {
-                    Throwable error = getException();
+                    getException();
                 }
             };
         }
     }
-
 }

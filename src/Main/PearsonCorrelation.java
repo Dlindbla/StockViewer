@@ -22,16 +22,11 @@ public class PearsonCorrelation {
                     //STOPS THE INNER FOR LOOP
                     item1Array[firstSeriesXValue] = firstSeriesData.getYValue().doubleValue();
                     item2Array[firstSeriesXValue] = secondSeriesData.getYValue().doubleValue();
-                    continue;
-                } else if (secondSeriesXValue > firstSeriesXValue) {
-                    //IF THE SECOND ITEM HAS A SMALLER X VALUE WE WILL CONTINUE THE LOOP
-                    //HOWEVER IS THE SECOND ITEM X VALUE IS LARGER THEN WE KNOW THAT IT WILL ONLY GROW AND NEVER MATCH THE FIRST X VALUE
-                    continue;
                 }
+
             }
         }
-        double correlaction = new PearsonsCorrelation().correlation(item1Array, item2Array);
-        return correlaction;
+        return new PearsonsCorrelation().correlation(item1Array, item2Array);
     }
 
 }

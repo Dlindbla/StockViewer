@@ -5,24 +5,19 @@ import javafx.beans.NamedArg;
 import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.chart.Axis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
-import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import Main.PearsonCorrelation;
 import java.util.ArrayList;
 import java.util.Objects;
-import java.util.Set;
 
 /*
 * THIS CLASS WAS COPIED FROM : https://stackoverflow.com/questions/28952133/how-to-add-two-vertical-lines-with-javafx-linechart
@@ -308,13 +303,6 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
         }
     }
 
-
-    public void hideHiddenSeries(){
-        this.getSeries().get(0).getNode().setVisible(false);
-        Set<Node> legends = this.lookupAll("Label.chart-legend-item");
-        legends.stream().findFirst().get().setVisible(!legends.stream().findFirst().get().isVisible());
-    }
-
     //Clears everything from the linechart
     public void fullClear(){
         this.removeAllStackPanes();
@@ -325,27 +313,13 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
         getData().clear();
     }
 
-    public void fillLineChart(ArrayList<XYChart.Series> series) {
-        boolean firstpass = true;
+    public void fillLineChart(ArrayList<Series<Number, Number>> series) {
         for (XYChart.Series item : series) {
-            //Attempts to update the hiddenSeries
-            if (firstpass) {
-                try {
-                    //always update the hidden series
-                    this.getData().set(0, item);
-                    item.getNode().setMouseTransparent(true);
-                    firstpass = false;
-                    continue;
-                } catch (IndexOutOfBoundsException e) {
-                    firstpass = false;
-                }
-            }
             if(!this.containsSeries(item.getName())){
                 this.getData().add(item);
                 item.getNode().setMouseTransparent(true);
             }
         }
-        //this.hideHiddenSeries();
     }
 
 
@@ -353,9 +327,6 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
     //A method that creates all PearssonsCorrelation valeus for all combinations of series in the linechart
     public void createPearssonsCorrelations(){
         ObservableList<XYChart.Series> list = this.getSeries();
-        //Exclude the hiddenSeries
-        list.remove(0);
-        //iterate over the rest
         for(XYChart.Series item : list){
             for(XYChart.Series item2 : list) {
                 if (!(item.getName() == item2.getName())) {

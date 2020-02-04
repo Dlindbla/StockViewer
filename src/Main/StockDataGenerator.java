@@ -1,6 +1,8 @@
 package Main;
+
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -22,7 +24,7 @@ public class StockDataGenerator {
             try {
                 StockData stockDataObject = new StockData(jsonData, symbol, interval);
                 stockDataArrayList.add(stockDataObject);
-            } catch (org.json.simple.parser.ParseException e){
+            } catch (ParseException | java.text.ParseException e){
                 continue;
             }
             //Feed into the Generator to create a XYChart.Series object

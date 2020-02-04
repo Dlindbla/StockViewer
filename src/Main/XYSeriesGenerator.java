@@ -6,13 +6,13 @@ import java.util.*;
 
 public class XYSeriesGenerator {
 
-    ArrayList<XYChart.Series> chartSeries = new ArrayList<>();
+    ArrayList<XYChart.Series<Number,Number>> chartSeries = new ArrayList<>();
     ArrayList<String> allDates = new ArrayList<>();
 
     //A hashMap for looking up the yValues for each series given an index integer from the xAxis
     public HashMap<Integer, List<XYChart.Data<Number, Number>>> hashMap = new HashMap<>();
 
-    public ArrayList<XYChart.Series> getSeries(){
+    public ArrayList<XYChart.Series<Number,Number>> getSeries(){
         return chartSeries;
     }
 
@@ -26,29 +26,12 @@ public class XYSeriesGenerator {
         //Collect all dates present in stockdata
         setAllDates(data);
         //set all dates to another arraylist and sorts them
-        ArrayList<StockData> items = new ArrayList<>();
-        items.addAll(data);
-        Collections.sort(items);
-
-        //create the hiddenseries using the sorted list of all dates
-        //chartSeries.add(createHiddenSeries(items));
+        Collections.sort(allDates);
         //iterate over all the stockdata objects and create XYCHART.series out of them
-        for (StockData stockDataObject : items) {
-            XYChart.Series tempChart = createXYSeries(stockDataObject);
+        for (StockData stockDataObject : data) {
+            XYChart.Series<Number, Number> tempChart = createXYSeries(stockDataObject);
             chartSeries.add(tempChart);
         }
-    }
-
-    public XYChart.Series createXYChart(StockData stockData) {
-        XYChart.Series series = new XYChart.Series();
-        series.setName(stockData.getStockSymbol());
-        for (StockTick tick : stockData.getStockTicks()) {
-            XYChart.Data tempData = new XYChart.Data();
-            tempData.setXValue(tick.rawDate);
-            tempData.setYValue(tick.close);
-            series.getData().add(tempData);
-        }
-        return series;
     }
 
     public void setAllDates(Collection<StockData> data){
@@ -66,8 +49,8 @@ public class XYSeriesGenerator {
         hashMap.clear();
     }
 
-    public XYChart.Series createXYSeries(StockData data){
-        XYChart.Series series = new XYChart.Series();
+    public XYChart.Series<Number,Number> createXYSeries(StockData data){
+        XYChart.Series<Number, Number> series = new XYChart.Series();
         series.setName(data.getStockSymbol());
         for(StockTick tick: data.getStockTicks()){
             XYChart.Data tickData = new XYChart.Data();
@@ -85,20 +68,4 @@ public class XYSeriesGenerator {
         }
         return series;
     }
-
-    //Create a hidden series that contains all the values of the
-    public XYChart.Series createHiddenSeries(Collection<StockData> data){
-        //Get the arbitrary close value of an item in the collection and assign the hidden series to use this as its value
-        double value = data.stream().findFirst().get().getStockTicks().stream().findFirst().get().close;
-        XYChart.Series hiddenSeries = new XYChart.Series();
-        hiddenSeries.setName("HiddenSeries");
-        //hiddenSeries.getData().add(new XYChart.Data("", value));
-        for (int i = 0; i < allDates.size(); i++) {
-            String date = allDates.get(i);
-            XYChart.Data dataPoint = new XYChart.Data(i,value);
-            hiddenSeries.getData().add(dataPoint);
-        }
-        return hiddenSeries;
-    }
-
 }
