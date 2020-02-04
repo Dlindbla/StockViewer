@@ -1,8 +1,6 @@
 package Main;
 
-
 import org.json.simple.JSONObject;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -29,7 +27,7 @@ public class StockData implements Comparable<StockData> {
     }
 
 
-    public StockData(JSONObject JSONData, String stockSymbol, String interval) throws ParseException {
+    public StockData(JSONObject JSONData, String stockSymbol, String interval) throws org.json.simple.parser.ParseException {
         this.stockSymbol = stockSymbol;
         this.interval = interval;
         this.JSONkey = "Time Series " + "(" + interval + ")";
@@ -50,10 +48,11 @@ public class StockData implements Comparable<StockData> {
 
     }
 
-    private void fillStockDataArray(JSONObject JSONData) throws ParseException {
+    private void fillStockDataArray(JSONObject JSONData) throws org.json.simple.parser.ParseException {
         JSONObject stockData = (JSONObject) JSONData;
 
         JSONObject data = (JSONObject) stockData.get(JSONkey);
+        if(data==null) throw new org.json.simple.parser.ParseException(1);
         System.out.println(JSONkey);
         for (Object tick : data.keySet()) {
             JSONObject tempJSON = (JSONObject) data.get(tick);

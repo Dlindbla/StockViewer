@@ -12,6 +12,8 @@ import Main.*;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.StringConverter;
+import org.json.simple.parser.ParseException;
+
 import java.net.URL;
 import java.util.*;
 
@@ -44,7 +46,7 @@ public class Controller implements Initializable {
 
     //Searchbox press enter function
     @FXML
-    public void onEnter(ActionEvent actionEvent){
+    public void onEnter(){
         threadedSearchFunction();
     }
 
@@ -67,33 +69,6 @@ public class Controller implements Initializable {
         lineChart.fillLineChart(series);
     }
 
-
-    public void zoomIn(int firstValue, int secondValue){
-        lineChart.removeAllRectangleMarkers();
-        lineChart.setAnimated(true);
-        xAxis.setAutoRanging(false);
-        xAxis.setForceZeroInRange(false);
-        //The amount of ticks displayed
-        int rangeSize;
-        //if the difference is less than the method will not zoom
-        if(Math.abs((firstValue-secondValue))>=3) {
-            if (firstValue > secondValue) {
-                xAxis.setUpperBound(firstValue);
-                xAxis.setLowerBound(secondValue);
-                rangeSize = firstValue - secondValue;
-            } else {
-                xAxis.setLowerBound(firstValue);
-                xAxis.setUpperBound(secondValue);
-                rangeSize = secondValue - firstValue;
-            }
-            //Sets the amount of ticks displayed
-            xAxis.setTickUnit(rangeSize / 10);
-            if (rangeSize < 10) {
-                xAxis.setTickUnit(1);
-            }
-        }
-    }
-
     public void resetZoom(){
         lineChart.removeAllVeritcalZoomMarkers();
         xAxis.setAutoRanging(true);
@@ -103,7 +78,7 @@ public class Controller implements Initializable {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
-                lineChart.fullClear();
+                lineChart.getData().clear();
             }
         });
     }
@@ -165,22 +140,27 @@ public class Controller implements Initializable {
                 protected ArrayList<XYChart.Series> call() throws Exception {
                     if (!tickerTable.getItems().isEmpty()) {
                         //if user doesn't set an interval time default to 15min
+
                         String interval = intervalCombobox.getSelectionModel().getSelectedItem();
                         if (interval == null) {
                             interval = "15min";
                         }
+
+                        boolean redraw = false;
                         //check if the timeInterval has been changed and update it
                         if (!(currentDrawnInterval == interval)) {
                             currentDrawnInterval = interval;
                             queueLineChartClear();
+                            redraw = true;
+
                         }
 
                         ArrayList<String> symbolStrings = new ArrayList<>();
+
                         //add all stock symbols from tableview to list, skip items already drawn
-                        for (searchResultObject item : tickerTable.getItems()) {
-                            if (!lineChart.containsSeries(item.getSymbol())) {
-                                symbolStrings.add(item.getSymbol());
-                            }
+
+                        for(searchResultObject item : tickerTable.getItems()) {
+                            symbolStrings.add(item.getSymbol());
                         }
 
                         //Check if the cache contains the stockdata already
@@ -191,6 +171,7 @@ public class Controller implements Initializable {
                                 stockDataArrayList.add((cache.get(index)));
                             }
                         }
+
                         //remove cached items from symbolStrings
                         for (StockData item : stockDataArrayList){
                             if(symbolStrings.contains(item.getStockSymbol())){
@@ -200,14 +181,15 @@ public class Controller implements Initializable {
                         //Set up uncached items for caching
                         ArrayList<StockData> uncachedData = new ArrayList<>();
                         if(!symbolStrings.isEmpty()) {
-                            uncachedData.addAll(StockDataGenerator.getArrayList(symbolStrings, interval,getTimeSerie()));
+                            uncachedData.addAll(StockDataGenerator.getArrayList(symbolStrings, interval, getTimeSerie()));
                         }
                         //cache here-to uncached items
-                        for(var item : uncachedData){
+                        for(var item : uncachedData) {
                             cache.add(item);
                             stockDataArrayList.add(item);
                         }
 
+                        queueLineChartClear();
                         gen.populateSeries(stockDataArrayList);
                         return gen.getSeries();
                     } else {
@@ -230,6 +212,7 @@ public class Controller implements Initializable {
                 protected void failed() {
                     Throwable error = getException();
                     System.out.println(error);
+
                 }
             };
         }
@@ -263,4 +246,5 @@ public class Controller implements Initializable {
             };
         }
     }
+
 }

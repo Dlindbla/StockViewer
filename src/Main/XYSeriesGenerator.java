@@ -12,7 +12,6 @@ public class XYSeriesGenerator {
     //A hashMap for looking up the yValues for each series given an index integer from the xAxis
     public HashMap<Integer, List<XYChart.Data<Number, Number>>> hashMap = new HashMap<>();
 
-
     public ArrayList<XYChart.Series> getSeries(){
         return chartSeries;
     }
@@ -21,9 +20,7 @@ public class XYSeriesGenerator {
 
     public void populateSeries(Collection<StockData> data) {
         //Clear all previous data
-        //TODO: Implement a way to avoid recreating the series everytime you add a new one to the linechart
         hashMap.clear();
-
         chartSeries.clear();
         allDates.clear();
         //Collect all dates present in stockdata
@@ -34,7 +31,7 @@ public class XYSeriesGenerator {
         Collections.sort(items);
 
         //create the hiddenseries using the sorted list of all dates
-        chartSeries.add(createHiddenSeries(items));
+        //chartSeries.add(createHiddenSeries(items));
         //iterate over all the stockdata objects and create XYCHART.series out of them
         for (StockData stockDataObject : items) {
             XYChart.Series tempChart = createXYSeries(stockDataObject);

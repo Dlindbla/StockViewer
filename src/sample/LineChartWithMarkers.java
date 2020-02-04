@@ -10,17 +10,15 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.chart.Axis;
 import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.Label;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
-import org.w3c.dom.css.Rect;
 import Main.PearsonCorrelation;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -41,6 +39,7 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
     public ObservableList<Data<X, Y>> infoBoxes;
     public ObservableList<Data<X, Y>> stackPanes;
 
+
     public LineChartWithMarkers(@NamedArg("xAxis") Axis<X> xAxis, @NamedArg("yAxis") Axis<Y> yAxis) {
         super(xAxis, yAxis);
 
@@ -55,9 +54,6 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
 
         rectangleMarkers = FXCollections.observableArrayList(data -> new Observable[] {data.XValueProperty()});
         rectangleMarkers.addListener((InvalidationListener)observable -> layoutPlotChildren());
-
-        infoBoxes = FXCollections.observableArrayList(data -> new Observable[] {data.XValueProperty()});
-        infoBoxes.addListener((InvalidationListener) observable -> layoutPlotChildren());
 
         stackPanes = FXCollections.observableArrayList(data -> new Observable[] {data.XValueProperty()});
         stackPanes.addListener((InvalidationListener) observable -> layoutPlotChildren());
@@ -92,6 +88,21 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
         getPlotChildren().add(line);
         verticalMarkers.add(marker);
     }
+
+    public void updateVerticalValueMarker(Data<X,Y> marker){
+
+        if(verticalMarkers.contains(marker)) return;
+        if(!verticalMarkers.isEmpty()){
+            var item = verticalMarkers.get(0);
+            item.setXValue(marker.getXValue());
+            item.setYValue(marker.getYValue());
+        }else{
+            addVerticalValueMarker(marker);
+        }
+
+    }
+
+
     public void addVerticalZoomMarker(Data<X, Y> marker) {
         Objects.requireNonNull(marker, "the marker must not be null");
         if (verticalZoomMarkers.contains(marker)) return;
@@ -113,18 +124,6 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
         marker.setNode(rectangle);
         getPlotChildren().add(rectangle);
         rectangleMarkers.add(marker);
-    }
-
-    public void addInfoBox(Data<X, Y> marker){
-        Objects.requireNonNull(marker, "The marker must not be null");
-        if(infoBoxes.contains(marker)) return;
-        Rectangle infoBox = new Rectangle(10,10,10,10);
-        infoBox.setStroke(Color.RED);
-        infoBox.setFill(Color.BLUE.deriveColor(1,1,1,0.2));
-        infoBox.setMouseTransparent(true);
-        marker.setNode(infoBox);
-        getPlotChildren().add(infoBox);
-        infoBoxes.add(marker);
     }
 
     public void addStackPane(Data<X, Y> marker, String infoText, boolean isPositive){
@@ -213,6 +212,7 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
     @Override
     protected void layoutPlotChildren() {
         super.layoutPlotChildren();
+
         for (Data<X, Y> horizontalMarker : horizontalMarkers) {
             Line line = (Line) horizontalMarker.getNode();
             line.setStartX(0);
@@ -247,14 +247,6 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
             rectangle.toBack();
         }
 
-        for(Data<X, Y> labelMarker : infoBoxes){
-            Rectangle rectangle = (Rectangle) labelMarker.getNode();
-            rectangle.setX(getXAxis().getDisplayPosition(labelMarker.getXValue()) + 0.5);
-            rectangle.setWidth(50);
-            rectangle.setY(getYAxis().getDisplayPosition(labelMarker.getYValue()) - 25);
-            rectangle.setHeight(50);
-            rectangle.toBack();
-        }
 
         for(Data<X, Y> stackPaneMarker : stackPanes){
             StackPane stackPane = (StackPane) stackPaneMarker.getNode();
@@ -278,10 +270,8 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
     }
 
     /*
-    *
     *   THE FOLLOWING METHODS ARE USED BY THE CONTROLLER TO ADD AND REMOVE ITEMS TO THE LINECHART
-    *
-    * */
+    */
 
     // TODO : CHANGE THIS TO TAKE A SERIES AS PARAMETER?
     public boolean containsSeries(String searchString){
@@ -292,20 +282,30 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
         return false;
     }
 
-    public void zoomIn(int firstCord, int secondCord){
-
-
-
-
-
-
-
-
-
-
-
-
-
+    public void zoomIn(int firstValue, int secondValue, NumberAxis xAxis){
+        removeAllRectangleMarkers();
+        setAnimated(true);
+        xAxis.setAutoRanging(false);
+        xAxis.setForceZeroInRange(false);
+        //The amount of ticks displayed
+        int rangeSize;
+        //if the difference is less than the method will not zoom
+        if(Math.abs((firstValue-secondValue))>=3) {
+            if (firstValue > secondValue) {
+                xAxis.setUpperBound(firstValue);
+                xAxis.setLowerBound(secondValue);
+                rangeSize = firstValue - secondValue;
+            } else {
+                xAxis.setLowerBound(firstValue);
+                xAxis.setUpperBound(secondValue);
+                rangeSize = secondValue - firstValue;
+            }
+            //Sets the amount of ticks displayed
+            xAxis.setTickUnit(rangeSize / 10);
+            if (rangeSize < 10) {
+                xAxis.setTickUnit(1);
+            }
+        }
     }
 
 
@@ -322,7 +322,7 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
         this.removeAllRectangleMarkers();
         this.removeAllSeriesLabels();
         this.removeAllVerticalValueMarkers();
-        this.getData().clear();
+        getData().clear();
     }
 
     public void fillLineChart(ArrayList<XYChart.Series> series) {
@@ -345,7 +345,7 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
                 item.getNode().setMouseTransparent(true);
             }
         }
-        this.hideHiddenSeries();
+        //this.hideHiddenSeries();
     }
 
 

@@ -52,7 +52,7 @@ public class LineChartMouseController {
                 if(!(startValue == null)){
                     if(mouseEvent.isControlDown()){
                         int xValue = xAxis.getValueForDisplay(mouseEvent.getX()).intValue();
-                        lineChart.zoomIn(startValue, xValue);
+                        lineChart.zoomIn(startValue, xValue,xAxis);
                         lineChart.removeAllVeritcalZoomMarkers();
                     }
                     startValue = null;
@@ -124,16 +124,15 @@ public class LineChartMouseController {
 
                 //Check if the current xCord has a new value in the range and update it, if it different, update the items.
 
-                if (!gen.hashMap.get(xValue).isEmpty()) {
-                    lineChart.removeAllVerticalValueMarkers();
-                    lineChart.addVerticalValueMarker(new XYChart.Data<>(xValue, 0));
+                lineChart.updateVerticalValueMarker(new XYChart.Data(xValue,0));
+
+                if (gen.hashMap.containsKey(xValue)) {
                     lineChart.removeAllStackPanes();
                     for (XYChart.Data<Number, Number> item : gen.hashMap.get(xValue)) {
-                        String dataString = String.format("%s : %.2f%s", item.getExtraValue(), item.getYValue(), "$");
+                        String dataString = String.format("%s : %s%.2f",item.getExtraValue(),"$" ,item.getYValue());
                         XYChart.Data<Number, Number> xyData = new XYChart.Data<>(item.getXValue(), item.getYValue());
                         lineChart.addStackPane(xyData, dataString, true);
                     }
-
                 }
             }
         });
