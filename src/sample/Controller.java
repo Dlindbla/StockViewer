@@ -11,6 +11,7 @@ import javafx.scene.chart.*;
 import Main.*;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.TilePane;
 import javafx.util.StringConverter;
 
 
@@ -46,7 +47,7 @@ public class Controller implements Initializable {
 
     //Searchbox press enter function
     @FXML
-    public void onEnter() {
+    public void onEnter(){
         threadedSearchFunction();
     }
 
@@ -61,16 +62,15 @@ public class Controller implements Initializable {
     public void threadedDrawFunction() {
         graphDrawer.restart();
     }
-
     public void threadedSearchFunction() {
         searchFunction.restart();
     }
 
-    public void fillLineChart(ArrayList<XYChart.Series<Number, Number>> series) {
+    public void fillLineChart(ArrayList<XYChart.Series<Number, Number>> series){
         lineChart.fillLineChart(series);
     }
 
-    public void resetZoom() {
+    public void resetZoom(){
         lineChart.removeAllVeritcalZoomMarkers();
         xAxis.setAutoRanging(true);
     }
@@ -110,7 +110,7 @@ public class Controller implements Initializable {
         priceColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         intervalCombobox.getItems().addAll("15min", "5min", "1min", "Monthly", "Weekly", "Daily");
         yAxis.setForceZeroInRange(false);
-        lineChartMouseController.setMouseController(lineChart, xAxis, yAxis, gen);
+        lineChartMouseController.setMouseController(lineChart,xAxis,yAxis,gen);
         xAxis.setTickLabelFormatter(new StringConverter<>() {
             @Override
             public String toString(Number number) {
@@ -121,17 +121,17 @@ public class Controller implements Initializable {
                 }
                 return null;
             }
-
             @Override
             public Number fromString(String s) {
                 return null;
             }
         });
+
     }
 
-    private class GraphDrawer extends Service<ArrayList<XYChart.Series<Number, Number>>> {
+    private class GraphDrawer extends Service<ArrayList<XYChart.Series<Number,Number>>> {
         @Override
-        protected Task<ArrayList<XYChart.Series<Number, Number>>> createTask() {
+        protected Task<ArrayList<XYChart.Series<Number,Number>>> createTask() {
             return new Task<>() {
                 @Override
                 protected ArrayList<XYChart.Series<Number, Number>> call() throws Exception {
@@ -222,13 +222,11 @@ public class Controller implements Initializable {
                         return null;
                     }
                 }
-
                 @Override
                 protected void succeeded() {
                     leftComboBox.getItems().clear(); // clear the previous items from the box
                     leftComboBox.getItems().addAll(getValue()); //add the new once received from the task
                 }
-
                 @Override
                 protected void failed() {
                     getException();

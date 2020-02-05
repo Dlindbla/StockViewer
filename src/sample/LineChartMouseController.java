@@ -40,7 +40,7 @@ public class LineChartMouseController {
             if (!(startValue == null)) {
                 if (mouseEvent.isControlDown()) {
                     int xValue = xAxis.getValueForDisplay(mouseEvent.getX()).intValue();
-                    lineChart.zoomIn(startValue, xValue, xAxis);
+                    lineChart.zoomIn(startValue, xValue);
                     lineChart.removeAllVeritcalZoomMarkers();
                 }
                 startValue = null;
@@ -59,7 +59,7 @@ public class LineChartMouseController {
                 lineChart.removeAllRectangleMarkers();
                 lineChart.removeAllVeritcalZoomMarkers();
                 lineChart.removeAllStackPanes();
-                XYChart.Data<Number,Number> item = new XYChart.Data<>();
+                XYChart.Data<Number, Number> item = new XYChart.Data<>();
                 if (xValue > startValue) {
                     item.setXValue(startValue);
                     item.setYValue(xValue);
@@ -69,26 +69,42 @@ public class LineChartMouseController {
                 }
                 lineChart.addRectangleMarker(item);
 
+                XYChart.Data<Number, Number> dateDiff = new XYChart.Data<>();
+                dateDiff.setXValue((startValue + xValue)/2);
+                Number yPosistion = (yAxis.getUpperBound()-((yAxis.getUpperBound()-yAxis.getLowerBound())/10));
+                dateDiff.setYValue(yPosistion.intValue());
+                lineChart.removeAllDateLabels();
+
+                String dateDiffString = String.format("%s - %s", gen.getAllDates().get(startValue), gen.getAllDates().get(xValue));
+                lineChart.addDateLabel(dateDiff, dateDiffString);
 
                 //ADDS A VERTICAL LINE TO THE END OF THE RECTANGLE
                 lineChart.addVerticalZoomMarker(new XYChart.Data<>(startValue, 0));
                 lineChart.addVerticalZoomMarker(new XYChart.Data<>(xValue, 0));
             }
             lineChart.removeAllVerticalValueMarkers();
+            Number yOffSet = ((yAxis.getUpperBound()-yAxis.getLowerBound())/10);
+            int priceLabelCount = 2;
+            if (gen.hashMap.containsKey(xValue)) {
+                for (var newValue : gen.hashMap.get(xValue)) {
+                    Number yPosition = (yAxis.getUpperBound() - yOffSet.doubleValue() * priceLabelCount);
+                    //Find the corrsponding old stock value for each new value if applicable
+                    for (var oldValue : gen.hashMap.get(startValue)) {
+                        if ((String) oldValue.getExtraValue() == (String) newValue.getExtraValue()) {
+                            priceLabelCount++;
+                            //Calculate the difference in price and set a boolean depending on value
+                            double priceDelta = newValue.getYValue().doubleValue() - oldValue.getYValue().doubleValue();
+                            boolean priceDeltaBoolean = priceDelta > 0;
+                            //Create A string to display the delta
+                            double percentDiffDouble = ((newValue.getYValue().doubleValue() / oldValue.getYValue().doubleValue()) - 1) * 100;
+                            String priceDeltaString = String.format("%S : %.2f%s", oldValue.getExtraValue(),percentDiffDouble, "%");
+                            //Sets the xAxis position to the middle of the drawn rectangle
+                            Number xPosition = (newValue.getXValue().intValue()+oldValue.getXValue().intValue())/2;
+                            //Create StackPanes for each one,
+                            XYChart.Data data = new XYChart.Data(xPosition.intValue(), yPosition.intValue());
+                            lineChart.addStackPane(data, priceDeltaString, priceDeltaBoolean);
 
-            for (var newValue : gen.hashMap.get(xValue)) {
-                //Find the corrsponding old stock value for each new value if applicable
-                for (var oldValue : gen.hashMap.get(startValue)) {
-                    if ((String) oldValue.getExtraValue() == (String) newValue.getExtraValue()) {
-                        //Calculate the difference in price and set a boolean depending on value
-                        double priceDelta = newValue.getYValue().doubleValue() - oldValue.getYValue().doubleValue();
-                        boolean priceDeltaBoolean = priceDelta > 0;
-                        //Create A string to display the delta
-                        double percentDiffDouble = ((newValue.getYValue().doubleValue() / oldValue.getYValue().doubleValue()) - 1) * 100;
-                        String priceDeltaString = String.format("%S : %s%.2f", oldValue.getExtraValue(), "%", percentDiffDouble);
-                        //Create StackPanes for each one,
-                        XYChart.Data data = new XYChart.Data(newValue.getXValue(), newValue.getYValue());
-                        lineChart.addStackPane(data, priceDeltaString, priceDeltaBoolean);
+                        }
                     }
                 }
             }
@@ -123,6 +139,7 @@ public class LineChartMouseController {
             lineChart.removeAllVerticalValueMarkers();
             lineChart.removeAllRectangleMarkers();
             lineChart.removeAllStackPanes();
+            lineChart.removeAllDateLabels();
         });
 
     }

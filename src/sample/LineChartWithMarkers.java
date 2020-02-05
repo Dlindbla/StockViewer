@@ -10,6 +10,7 @@ import javafx.scene.chart.Axis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
@@ -18,6 +19,7 @@ import javafx.scene.text.Text;
 import Main.PearsonCorrelation;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Stack;
 
 /*
 * THIS CLASS WAS COPIED FROM : https://stackoverflow.com/questions/28952133/how-to-add-two-vertical-lines-with-javafx-linechart
@@ -31,8 +33,9 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
     public ObservableList<Data<X, Y>> verticalMarkers;
     public ObservableList<Data<X, Y>> verticalZoomMarkers;
     public ObservableList<Data <X, X>> rectangleMarkers;
-    public ObservableList<Data<X, Y>> infoBoxes;
     public ObservableList<Data<X, Y>> stackPanes;
+
+    public ObservableList<Data<X, Y>> dateLabels;
 
 
     public LineChartWithMarkers(@NamedArg("xAxis") Axis<X> xAxis, @NamedArg("yAxis") Axis<Y> yAxis) {
@@ -52,6 +55,10 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
 
         stackPanes = FXCollections.observableArrayList(data -> new Observable[] {data.XValueProperty()});
         stackPanes.addListener((InvalidationListener) observable -> layoutPlotChildren());
+
+        dateLabels = FXCollections.observableArrayList(data -> new Observable[] {data.XValueProperty()});
+        dateLabels.addListener((InvalidationListener) observable -> layoutPlotChildren());
+
 
     }
 
@@ -121,10 +128,24 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
         rectangleMarkers.add(marker);
     }
 
+    public void addDateLabel(Data<X,Y> marker, String text){
+
+        StackPane stackPane = new StackPane();
+        stackPane.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
+        Text dateText = new Text(text);
+        dateText.setMouseTransparent(true);
+        stackPane.getChildren().add(dateText);
+        marker.setNode(stackPane);
+        getPlotChildren().add(stackPane);
+        dateLabels.add(marker);
+
+    }
+
+
+
     public void addStackPane(Data<X, Y> marker, String infoText, boolean isPositive){
         //TODO: ADD A CHECK TO SEE IF THERE ARE OTHER MARKER WITHIN 20PX OF THIS ONE AND THEN MOVE IT SO THAT IT DOESNT
         // LEAVE THE SCREEN BUT ALSO DOESN'T OVERLAP WITH ANOTHER STACKPANE
-
         Objects.requireNonNull(marker, "The marker must not be null");
         if(stackPanes.contains(marker)) return;
         StackPane stackPane = new StackPane();
@@ -180,20 +201,20 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
         rectangleMarkers.clear();
     }
 
-    public void removeAllSeriesLabels(){
-        for(Data<X, Y> marker : infoBoxes){
-            getPlotChildren().remove(marker.getNode());
-            marker.setNode(null);
-        }
-        infoBoxes.clear();
-    }
-
     public void removeAllStackPanes(){
         for(Data<X, Y> marker: stackPanes){
             getPlotChildren().remove(marker.getNode());
             marker.setNode(null);
         }
         stackPanes.clear();
+    }
+
+    public void removeAllDateLabels(){
+        for(Data<X, Y> marker : dateLabels){
+            getPlotChildren().remove(marker.getNode());
+            marker.setNode(null);
+        }
+        dateLabels.clear();
     }
 
 
@@ -234,6 +255,7 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
         }
 
         for (Data<X, X> rectangleMarker : rectangleMarkers) {
+
             Rectangle rectangle = (Rectangle) rectangleMarker.getNode();
             rectangle.setX( getXAxis().getDisplayPosition(rectangleMarker.getXValue()) + 0.5);  // 0.5 for crispness
             rectangle.setWidth( getXAxis().getDisplayPosition(rectangleMarker.getYValue()) - getXAxis().getDisplayPosition(rectangleMarker.getXValue()));
@@ -250,7 +272,7 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
             double width = theText.getBoundsInLocal().getWidth() + 8;
             double height = theText.getBoundsInLocal().getHeight();
 
-            stackPane.setLayoutX(getXAxis().getDisplayPosition(stackPaneMarker.getXValue()) + (width/2) + 0.5);
+            stackPane.setLayoutX(getXAxis().getDisplayPosition(stackPaneMarker.getXValue()) + 0.5);
             stackPane.setLayoutY(getYAxis().getDisplayPosition(stackPaneMarker.getYValue()));
             stackPane.setMinWidth(50);
             stackPane.setMinHeight(20);
@@ -262,6 +284,19 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
             rectangle.setHeight(height);
             stackPane.toFront();
         }
+
+        for(Data<X,Y> labelMarker : dateLabels){
+            StackPane stackPane = (StackPane) labelMarker.getNode();
+            Text text = (Text) stackPane.getChildren().get(0);
+            text.setFont(text.getFont());
+            stackPane.setLayoutX(getXAxis().getDisplayPosition(labelMarker.getXValue()));
+            stackPane.setLayoutY(getYAxis().getDisplayPosition(labelMarker.getYValue()));
+            stackPane.setMinSize(50,50);
+            stackPane.toFront();
+        }
+
+
+
     }
 
     /*
@@ -277,11 +312,13 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
         return false;
     }
 
-    public void zoomIn(int firstValue, int secondValue, NumberAxis xAxis){
+    public void zoomIn(int firstValue, int secondValue){
+        NumberAxis xAxis = (NumberAxis) getXAxis();
         removeAllRectangleMarkers();
         setAnimated(true);
         xAxis.setAutoRanging(false);
         xAxis.setForceZeroInRange(false);
+
         //The amount of ticks displayed
         int rangeSize;
         //if the difference is less than the method will not zoom
@@ -308,7 +345,6 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
         this.removeAllStackPanes();
         this.removeAllVeritcalZoomMarkers();
         this.removeAllRectangleMarkers();
-        this.removeAllSeriesLabels();
         this.removeAllVerticalValueMarkers();
         getData().clear();
     }
