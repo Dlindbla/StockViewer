@@ -16,7 +16,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
-import Main.PearsonCorrelation;
+import utils.PearsonCorrelation;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Stack;
