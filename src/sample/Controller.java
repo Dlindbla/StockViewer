@@ -64,9 +64,6 @@ public class Controller implements Initializable {
 
     String currentDrawnInterval = "15min";
 
-    public void threadedDrawFunction() {
-        graphDrawer.restart();
-    }
     public void threadedSearchFunction() {
         searchFunction.restart();
     }
@@ -86,13 +83,21 @@ public class Controller implements Initializable {
     }
 
     public void deleteTicker() {
-        Object objectToRemove = tickerTable.getSelectionModel().getSelectedItem();
+        var objectToRemove = tickerTable.getSelectionModel().getSelectedItem();
         tickerTable.getItems().remove(objectToRemove);
+
+        for (var item : lineChart.getSeries()) {
+            if (item.getName() == objectToRemove.getSymbol()) {
+                lineChart.getSeries().remove(item);
+                break;
+            }
+        }
     }
 
     public void addTicker() {
         SearchResult item = leftComboBox.getSelectionModel().getSelectedItem();
         tickerTable.getItems().add(item);
+        graphDrawer.restart();
     }
 
     //TODO: REPLACE THIS SO THAT THE STOCKDATA DOESNT NEED A KEY AND INSTEAD PEEKS INTO THE KEYSETS DATA TO FIND THE RIGHT KEY
