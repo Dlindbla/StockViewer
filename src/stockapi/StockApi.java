@@ -64,8 +64,7 @@ public abstract class StockApi {
     boolean firstParam = true;
     for (var param : params.entrySet()) {
       baseUrl += String.format("%s%s=%s", (firstParam ? "?" : "&"), param.getKey(), param.getValue());
-      if (firstParam)
-        firstParam = false;
+      if (firstParam) firstParam = false;
     }
     var url = new URL(baseUrl);
 

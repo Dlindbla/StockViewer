@@ -72,11 +72,6 @@ public class Controller implements Initializable {
         lineChart.fillLineChart(series);
     }
 
-    public void resetZoom(){
-        lineChart.removeAllVeritcalZoomMarkers();
-        xAxis.setAutoRanging(true);
-    }
-
     public void queueLineChartClear() {
         Platform.runLater(() -> lineChart.getData().clear());
         gen.reset();

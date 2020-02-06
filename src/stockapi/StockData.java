@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class StockData {
     String symbol;
     String interval;
-    ArrayList<StockTick> ticks = new ArrayList<>();
+    ArrayList<StockTick> ticks = new ArrayList<StockTick>();
 
     public String getSymbol() {
         return symbol;

@@ -74,7 +74,6 @@
                                                 <TableColumn fx:id="priceColumn" minWidth="0.0" prefWidth="113" text="COMPANY NAME" />
                                             </columns>
                                         </TableView>
-                                        <Button mnemonicParsing="false" onAction="#resetZoom" prefHeight="26" prefWidth="200" text="UNZOOM" />
                                     </children>
                                 </VBox>
                             </children>

@@ -7,42 +7,47 @@ import javafx.scene.input.MouseButton;
 import utils.XYSeriesGenerator;
 
 public class LineChartMouseController {
-
-    //A startvalue for selecting zoom
+    // Start value for zoom
     Integer startValue;
 
-    public void setMouseController(LineChartWithMarkers lineChart, NumberAxis xAxis, NumberAxis yAxis, XYSeriesGenerator gen) {
+    public void setMouseController(LineChartWithMarkers lineChart, NumberAxis xAxis, NumberAxis yAxis,
+            XYSeriesGenerator gen) {
         final Node chartBackground = lineChart.lookup(".chart-plot-background");
-        //Get the amount of values on the xAxis
-        //if the amount is over a certain limit, employ a range to check if the values of data should be updated
 
-
+        // Get the amount of values on the xAxis
+        // if the amount is over a certain limit, employ a range to check if the values
+        // of data should be updated
         chartBackground.setOnMousePressed(mouseEvent -> {
-            int xValue = xAxis.getValueForDisplay(mouseEvent.getX()).intValue();
             if (mouseEvent.getButton() == MouseButton.PRIMARY) {
+                int xValue = xAxis.getValueForDisplay(mouseEvent.getX()).intValue();
                 startValue = xValue;
-                //Get the date from the hiddenseries
+                
+                // Get the date from the hiddenseries
                 int dateArraySize = gen.getAllDates().size();
                 if (xValue < dateArraySize) {
-                    XYChart.Data<Number,Number> item = new XYChart.Data();
+                    XYChart.Data<Number, Number> item = new XYChart.Data<Number, Number>();
                     item.setYValue(0);
                     item.setXValue(xValue);
                 }
-
             } else if (mouseEvent.getButton() == MouseButton.SECONDARY) {
-                //Cancel zoomIn if leftclick is pressed
-                lineChart.removeAllVeritcalZoomMarkers();
-                lineChart.removeAllRectangleMarkers();
+                if (startValue != null) {
+                    // Cancel zooming
+                    lineChart.removeAllVeritcalZoomMarkers();
+                    lineChart.removeAllRectangleMarkers();
+                    startValue = null;
+                } else {
+                    // Zoom out
+                    lineChart.removeAllVeritcalZoomMarkers();
+                    xAxis.setAutoRanging(true);
+                }
             }
         });
 
         chartBackground.setOnMouseReleased(mouseEvent -> {
-            if (!(startValue == null)) {
-                if (mouseEvent.isControlDown()) {
-                    int xValue = xAxis.getValueForDisplay(mouseEvent.getX()).intValue();
-                    lineChart.zoomIn(startValue, xValue);
-                    lineChart.removeAllVeritcalZoomMarkers();
-                }
+            if (mouseEvent.getButton() == MouseButton.PRIMARY && startValue != null) {
+                int xValue = xAxis.getValueForDisplay(mouseEvent.getX()).intValue();
+                lineChart.zoomIn(startValue, xValue);
+
                 startValue = null;
                 lineChart.removeAllRectangleMarkers();
                 lineChart.removeAllVeritcalZoomMarkers();
@@ -50,12 +55,14 @@ public class LineChartMouseController {
         });
 
         chartBackground.setOnMouseDragged(mouseEvent -> {
-            //IF the firstZoomInterger hsa been set then create a rectangle spanning from firstZoomintgercords
-            //to the mouse position
+            // IF the firstZoomInterger hsa been set then create a rectangle spanning from
+            // firstZoomintgercords
+            // to the mouse position
             lineChart.removeAllStackPanes();
             int xValue = xAxis.getValueForDisplay(mouseEvent.getX()).intValue();
-            //If we are zooming in
-            if (!(startValue == null)) {
+
+            // If we are zooming in
+            if (startValue != null) {
                 lineChart.removeAllRectangleMarkers();
                 lineChart.removeAllVeritcalZoomMarkers();
                 lineChart.removeAllStackPanes();
@@ -70,40 +77,47 @@ public class LineChartMouseController {
                 lineChart.addRectangleMarker(item);
 
                 XYChart.Data<Number, Number> dateDiff = new XYChart.Data<>();
-                dateDiff.setXValue((startValue + xValue)/2);
-                Number yPosistion = (yAxis.getUpperBound()-((yAxis.getUpperBound()-yAxis.getLowerBound())/10));
+                dateDiff.setXValue((startValue + xValue) / 2);
+                Number yPosistion = (yAxis.getUpperBound() - ((yAxis.getUpperBound() - yAxis.getLowerBound()) / 10));
                 dateDiff.setYValue(yPosistion.intValue());
                 lineChart.removeAllDateLabels();
 
-                String dateDiffString = String.format("%s - %s", gen.getAllDates().get(startValue), gen.getAllDates().get(xValue));
+                String dateDiffString = String.format("%s - %s", gen.getAllDates().get(startValue),
+                        gen.getAllDates().get(xValue));
                 lineChart.addDateLabel(dateDiff, dateDiffString);
 
-                //ADDS A VERTICAL LINE TO THE END OF THE RECTANGLE
+                // ADDS A VERTICAL LINE TO THE END OF THE RECTANGLE
                 lineChart.addVerticalZoomMarker(new XYChart.Data<>(startValue, 0));
                 lineChart.addVerticalZoomMarker(new XYChart.Data<>(xValue, 0));
             }
             lineChart.removeAllVerticalValueMarkers();
-            Number yOffSet = ((yAxis.getUpperBound()-yAxis.getLowerBound())/10);
+            Number yOffSet = ((yAxis.getUpperBound() - yAxis.getLowerBound()) / 10);
             int priceLabelCount = 2;
             if (gen.hashMap.containsKey(xValue)) {
                 for (var newValue : gen.hashMap.get(xValue)) {
                     Number yPosition = (yAxis.getUpperBound() - yOffSet.doubleValue() * priceLabelCount);
-                    //Find the corrsponding old stock value for each new value if applicable
+
+                    // Find the corrsponding old stock value for each new value if applicable
                     for (var oldValue : gen.hashMap.get(startValue)) {
                         if ((String) oldValue.getExtraValue() == (String) newValue.getExtraValue()) {
                             priceLabelCount++;
-                            //Calculate the difference in price and set a boolean depending on value
+
+                            // Calculate the difference in price and set a boolean depending on value
                             double priceDelta = newValue.getYValue().doubleValue() - oldValue.getYValue().doubleValue();
                             boolean priceDeltaBoolean = priceDelta > 0;
-                            //Create A string to display the delta
-                            double percentDiffDouble = ((newValue.getYValue().doubleValue() / oldValue.getYValue().doubleValue()) - 1) * 100;
-                            String priceDeltaString = String.format("%S : %.2f%s", oldValue.getExtraValue(),percentDiffDouble, "%");
-                            //Sets the xAxis position to the middle of the drawn rectangle
-                            Number xPosition = (newValue.getXValue().intValue()+oldValue.getXValue().intValue())/2;
-                            //Create StackPanes for each one,
+
+                            // Create A string to display the delta
+                            double percentDiffDouble = ((newValue.getYValue().doubleValue()
+                                    / oldValue.getYValue().doubleValue()) - 1) * 100;
+                            String priceDeltaString = String.format("%S : %.2f%s", oldValue.getExtraValue(),
+                                    percentDiffDouble, "%");
+
+                            // Sets the xAxis position to the middle of the drawn rectangle
+                            Number xPosition = (newValue.getXValue().intValue() + oldValue.getXValue().intValue()) / 2;
+
+                            // Create StackPanes for each one,
                             XYChart.Data data = new XYChart.Data(xPosition.intValue(), yPosition.intValue());
                             lineChart.addStackPane(data, priceDeltaString, priceDeltaBoolean);
-
                         }
                     }
                 }
@@ -111,17 +125,17 @@ public class LineChartMouseController {
         });
 
         chartBackground.setOnMouseMoved(mouseEvent -> {
-
-            //USE THE xAXIS VALUE TO FIND A RANDOM SERIES CORRESPONDING YVALUE LOCATION
-            //Get the X cord of the mouse and round to the nearest integer value
-            //Get the Y values of each series with x cord value
-            //We round the mouse cords to Integer so that the line wont flicker or disappear if the mouse if between
-            //two value on the xAxis
+            // USE THE xAXIS VALUE TO FIND A RANDOM SERIES CORRESPONDING YVALUE LOCATION
+            // Get the X cord of the mouse and round to the nearest integer value
+            // Get the Y values of each series with x cord value
+            // We round the mouse cords to Integer so that the line wont flicker or
+            // disappear if the mouse if between
+            // two value on the xAxis
             Number xMouseCord = mouseEvent.getX();
             int xValue = xAxis.getValueForDisplay(xMouseCord.intValue()).intValue();
 
-            //Check if the current xCord has a new value in the range and update it, if it different, update the items.
-
+            // Check if the current xCord has a new value in the range and update it, if it
+            // different, update the items.
             lineChart.updateVerticalValueMarker(new XYChart.Data(xValue, 0));
 
             if (gen.hashMap.containsKey(xValue)) {
@@ -141,7 +155,5 @@ public class LineChartMouseController {
             lineChart.removeAllStackPanes();
             lineChart.removeAllDateLabels();
         });
-
     }
-
 }
