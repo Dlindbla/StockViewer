@@ -3,7 +3,6 @@ package stockapi.apis;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -49,11 +48,7 @@ public class AlphaVantage extends StockApi {
     var json = makeJSONWebRequest(baseApiUrl, params);
     var result = parseSearchResult(json);
 
-    // Create list and sort it
-    var results = new ArrayList<SearchResult>(result);
-    Collections.sort(results);
-
-    return results;
+    return new ArrayList<SearchResult>(result);
   }
 
   private StockData parseStockData(JSONObject object, String stockSymbol, String interval)
@@ -89,8 +84,6 @@ public class AlphaVantage extends StockApi {
 
       stock.addTick(tempTick);
     }
-
-    stock.sortTiks();
 
     return stock;
   }

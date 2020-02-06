@@ -1,7 +1,6 @@
 package stockapi;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
 public class StockData {
     String symbol;
@@ -26,10 +25,6 @@ public class StockData {
 
     public void addTick(StockTick tick) {
         ticks.add(tick);
-    }
-
-    public void sortTiks() {
-        Collections.sort(ticks);
     }
 
     public StockData(String symbol, String interval) {
