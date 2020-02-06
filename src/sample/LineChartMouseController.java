@@ -55,11 +55,21 @@ public class LineChartMouseController {
         });
 
         chartBackground.setOnMouseDragged(mouseEvent -> {
+            // Only the primary mouse button supports dragging
+            if (mouseEvent.getButton() != MouseButton.PRIMARY) {
+                return;
+            }
+
             // IF the firstZoomInterger hsa been set then create a rectangle spanning from
             // firstZoomintgercords
             // to the mouse position
             lineChart.removeAllStackPanes();
             int xValue = xAxis.getValueForDisplay(mouseEvent.getX()).intValue();
+
+            // Check bounds (prevents selecting past end of graph)
+            if (xValue >= gen.getAllDates().size()) {
+                return;
+            }
 
             // If we are zooming in
             if (startValue != null) {

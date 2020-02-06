@@ -102,8 +102,10 @@ public class Controller implements Initializable {
 
     public void addTicker() {
         SearchResult item = leftComboBox.getSelectionModel().getSelectedItem();
-        tickerTable.getItems().add(item);
-        graphDrawer.restart();
+        if (!tickerTable.getItems().contains(item)) {
+            tickerTable.getItems().add(item);
+            graphDrawer.restart();
+        }
     }
 
     //TODO: REPLACE THIS SO THAT THE STOCKDATA DOESNT NEED A KEY AND INSTEAD PEEKS INTO THE KEYSETS DATA TO FIND THE RIGHT KEY
