@@ -44,9 +44,7 @@
                     <children>
                         <AnchorPane maxWidth="200" prefHeight="200.0" prefWidth="200.0" styleClass="leftSideSettings">
                             <children>
-                                <Button mnemonicParsing="false" onAction="#queueLineChartClear" styleClass="basicButton" text="CLEAR" AnchorPane.leftAnchor="50" AnchorPane.rightAnchor="50" AnchorPane.topAnchor="10" />
-                                <Button fx:id="fillLineChartButton" layoutY="33.0" mnemonicParsing="false" onAction="#threadedDrawFunction" prefWidth="100.0" styleClass="basicButton" text="LOAD TICKERS" AnchorPane.leftAnchor="50" AnchorPane.rightAnchor="50" AnchorPane.topAnchor="50" />
-                                <VBox layoutX="13.0" layoutY="96.0" prefHeight="306.0" prefWidth="174.0">
+                                <VBox layoutX="13.0" layoutY="13.0" prefHeight="306.0" prefWidth="174.0">
                                     <children>
                                         <ComboBox fx:id="intervalCombobox" prefHeight="26.0" prefWidth="184.0" promptText="SET TIME INTERVAL" styleClass="leftTextField" />
                                         <ComboBox fx:id="selectedData" prefHeight="26.0" prefWidth="184.0" promptText="DATA TYPE" styleClass="leftTextField" />
@@ -79,7 +77,6 @@
                                         <Button mnemonicParsing="false" onAction="#resetZoom" prefHeight="26" prefWidth="200" text="UNZOOM" />
                                     </children>
                                 </VBox>
-                                <Button fx:id="flipbutton" layoutY="50.0" mnemonicParsing="false" text="Button"/>
                             </children>
                         </AnchorPane>
                         <AnchorPane prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS">

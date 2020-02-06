@@ -39,8 +39,6 @@ public class AlphaVantage extends StockApi {
   }
 
   protected ArrayList<SearchResult> searchInternal(String searchString) throws IOException, ParseException {
-    var results = new ArrayList<SearchResult>();
-
     // Build params
     var params = new HashMap<String, String>();
     params.put("function", "SYMBOL_SEARCH");
@@ -50,8 +48,9 @@ public class AlphaVantage extends StockApi {
     // Make web request and parse data
     var json = makeJSONWebRequest(baseApiUrl, params);
     var result = parseSearchResult(json);
-    results.addAll(result);
 
+    // Create list and sort it
+    var results = new ArrayList<SearchResult>(result);
     Collections.sort(results);
 
     return results;
