@@ -1,6 +1,7 @@
 package sample;
 
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
@@ -8,7 +9,9 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.*;
-import Main.*;
+import stockapi.SearchResult;
+import stockapi.apis.AlphaVantage;
+import utils.XYSeriesGenerator;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.TilePane;
@@ -32,13 +35,13 @@ public class Controller implements Initializable {
     @FXML
     TextField leftTextField;
     @FXML
-    TableView<searchResultObject> tickerTable;
+    TableView<SearchResult> tickerTable;
     @FXML
-    ComboBox<searchResultObject> leftComboBox;
+    ComboBox<SearchResult> leftComboBox;
     @FXML
-    TableColumn<searchResultObject, String> symbolColumn;
+    TableColumn<SearchResult, String> symbolColumn;
     @FXML
-    TableColumn<searchResultObject, Double> priceColumn;
+    TableColumn<SearchResult, Double> priceColumn;
     @FXML
     ComboBox<String> intervalCombobox;
     @FXML
@@ -51,8 +54,10 @@ public class Controller implements Initializable {
         threadedSearchFunction();
     }
 
+    // Initialize stock data sources
+    AlphaVantage alphaVantage = new AlphaVantage();
+
     LineChartMouseController lineChartMouseController = new LineChartMouseController();
-    StockDataCache cache = new StockDataCache();
     XYSeriesGenerator gen = new XYSeriesGenerator();
     private GraphDrawer graphDrawer = new GraphDrawer();
     private SearchFunction searchFunction = new SearchFunction();
@@ -86,7 +91,7 @@ public class Controller implements Initializable {
     }
 
     public void addTicker() {
-        searchResultObject item = leftComboBox.getSelectionModel().getSelectedItem();
+        SearchResult item = leftComboBox.getSelectionModel().getSelectedItem();
         tickerTable.getItems().add(item);
     }
 
@@ -152,37 +157,12 @@ public class Controller implements Initializable {
                         ArrayList<String> symbolStrings = new ArrayList<>();
 
                         //add all stock symbols from tableview to list, skip items already drawn
-
-                        for (searchResultObject item : tickerTable.getItems()) {
+                        for (SearchResult item : tickerTable.getItems()) {
                             symbolStrings.add(item.getSymbol());
                         }
 
-                        //Check if the cache contains the stockdata already
-                        ArrayList<StockData> stockDataArrayList = new ArrayList<>();
-                        for (String item : symbolStrings) {
-                            if (cache.contains(item.concat(interval))) {
-                                int index = cache.indexOf(item.concat(interval));
-                                stockDataArrayList.add((cache.get(index)));
-                            }
-                        }
-
-                        //remove cached items from symbolStrings
-                        for (StockData item : stockDataArrayList) {
-                            if (symbolStrings.contains(item.getStockSymbol())) {
-                                symbolStrings.remove(item.getStockSymbol());
-                            }
-                        }
-                        //Set up uncached items for caching
-                        ArrayList<StockData> uncachedData = new ArrayList<>();
-                        if (!symbolStrings.isEmpty()) {
-                            uncachedData.addAll(StockDataGenerator.getArrayList(symbolStrings, interval, getTimeSerie()));
-
-                        }
-                        //cache here-to uncached items
-                        for (var item : uncachedData) {
-                            cache.add(item);
-                            stockDataArrayList.add(item);
-                        }
+                        // Fetch data
+                        var stockDataArrayList = alphaVantage.query(symbolStrings, interval, getTimeSerie());
 
                         queueLineChartClear();
                         gen.populateSeries(stockDataArrayList);
@@ -207,17 +187,19 @@ public class Controller implements Initializable {
         }
     }
 
-    private class SearchFunction extends Service<ObservableList<searchResultObject>> {
+    private class SearchFunction extends Service<ObservableList<SearchResult>> {
         @Override
-        protected Task<ObservableList<searchResultObject>> createTask() {
-            return new Task<ObservableList<searchResultObject>>() {
+        protected Task<ObservableList<SearchResult>> createTask() {
+            return new Task<ObservableList<SearchResult>>() {
                 @Override
-                protected ObservableList<searchResultObject> call() throws Exception {
+                protected ObservableList<SearchResult> call() throws Exception {
                     String searchString = leftTextField.getText();
                     if (!(searchString.isEmpty())) {
-                        SymbolSearch searchResults = new SymbolSearch();
-                        searchResults.search(searchString);
-                        return searchResults.getObservables();
+                        var res = alphaVantage.search(searchString);
+                        ObservableList<SearchResult> list = FXCollections.observableArrayList();
+                        list.addAll(res);
+
+                        return list;
                     } else {
                         return null;
                     }

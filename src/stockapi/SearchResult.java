@@ -1,6 +1,6 @@
-package Main;
+package stockapi;
 
-public class searchResultObject implements Comparable<searchResultObject> {
+public class SearchResult implements Comparable<SearchResult> {
     String symbol;
     String name;
     String type;
@@ -10,8 +10,6 @@ public class searchResultObject implements Comparable<searchResultObject> {
     String timezone;
     String currency;
     Float matchScore;
-
-    /* GETTERS START HERE!*/
 
     public String getSymbol() {
         return symbol;
@@ -49,9 +47,8 @@ public class searchResultObject implements Comparable<searchResultObject> {
         return matchScore;
     }
 
-    /*GETTERS STOP HERE!*/
-
-    searchResultObject(String symbol, String name, String type, String region, String marketOpen, String marketClose, String timezone, String currency, Float matchScore) {
+    public SearchResult(String symbol, String name, String type, String region, String marketOpen, String marketClose,
+            String timezone, String currency, Float matchScore) {
         this.symbol = symbol;
         this.name = name;
         this.type = type;
@@ -63,13 +60,11 @@ public class searchResultObject implements Comparable<searchResultObject> {
         this.matchScore = matchScore;
     }
 
-
-
-
     @Override
-    public int compareTo(searchResultObject searchResultObject) {
+    public int compareTo(SearchResult searchResultObject) {
         return searchResultObject.matchScore.compareTo(this.matchScore);
     }
+
     @Override
     public String toString() {
         return (this.getName() + " : " + getRegion());
