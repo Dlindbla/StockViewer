@@ -17,6 +17,9 @@
 <?import javafx.scene.layout.VBox?>
 
 <?import sample.LineChartWithMarkers?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.layout.Pane?>
 <VBox xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
     <children>
         <MenuBar>
@@ -38,7 +41,14 @@
                 </Menu>
             </menus>
         </MenuBar>
-        <AnchorPane>
+        <TabPane tabClosingPolicy="UNAVAILABLE">
+        <Tab text="Ass" fx:id="testTab" >
+            <Pane fx:id="testTabPane" VBox.vgrow="ALWAYS">
+                <Button fx:id="testButton" onAction="#addToTestTab" text="Add shaiba to shit"></Button>
+            </Pane>
+        </Tab>
+        <Tab text="Stock Investment">
+            <AnchorPane>
             <children>
                 <HBox maxHeight="-Infinity" maxWidth="-Infinity" AnchorPane.bottomAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.leftAnchor="0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="579.0" prefWidth="600.0" styleClass="MainBox" stylesheets="@/sample/AppStyle.css">
                     <children>
@@ -86,7 +96,7 @@
                                         <NumberAxis label="Date" minorTickVisible="false" side="BOTTOM" fx:id="xAxis" />
                                     </xAxis>
                                     <yAxis>
-                                        <NumberAxis fx:id="yAxis" label="Price" side="LEFT" tickUnit="10" />
+                                        <NumberAxis fx:id="yAxis" label="Price" side="LEFT"/>
                                     </yAxis>
                                 </LineChartWithMarkers>
                             </children>
@@ -94,6 +104,8 @@
                     </children>
                 </HBox>
             </children>
-        </AnchorPane>
+            </AnchorPane>
+        </Tab>
+        </TabPane>
     </children>
 </VBox>

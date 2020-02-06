@@ -5,19 +5,20 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.*;
+import javafx.scene.layout.Pane;
 import stockapi.SearchResult;
 import stockapi.apis.AlphaVantage;
 import utils.XYSeriesGenerator;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.TilePane;
 import javafx.util.StringConverter;
 
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
@@ -45,7 +46,17 @@ public class Controller implements Initializable {
     @FXML
     ComboBox<String> intervalCombobox;
     @FXML
-    Button flipbutton;
+    Tab testTab;
+    @FXML
+    Pane testTabPane;
+    @FXML
+    Button testButton;
+
+    public void addToTestTab() throws IOException {
+        Pane pane  = FXMLLoader.load(getClass().getResource("cryptoTab.fxml"));
+        pane.getStylesheets().add(getClass().getResource("AppStyle.css").toString());
+        testTab.setContent(pane);
+    }
 
 
     //Searchbox press enter function
@@ -113,6 +124,7 @@ public class Controller implements Initializable {
         tickerTable.setPlaceholder(new Label("NO TICKERS SELECTED"));
         symbolColumn.setCellValueFactory(new PropertyValueFactory<>("symbol"));
         priceColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+
         intervalCombobox.getItems().addAll("15min", "5min", "1min", "Monthly", "Weekly", "Daily");
         yAxis.setForceZeroInRange(false);
         lineChartMouseController.setMouseController(lineChart,xAxis,yAxis,gen);
