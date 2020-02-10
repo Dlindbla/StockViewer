@@ -54,7 +54,12 @@ public class AlphaVantage extends StockApi {
   private StockData parseStockData(JSONObject object, String stockSymbol, String interval)
       throws java.text.ParseException {
     var stock = new StockData(stockSymbol, interval);
-    var stockData = (JSONObject) object.get("Time Series " + "(" + interval + ")");
+    JSONObject stockData;
+    if (object.containsKey(interval + " Time Series")) {
+      stockData = (JSONObject) object.get(interval + " Time Series");
+    } else {
+      stockData = (JSONObject) object.get("Time Series " + "(" + interval + ")");
+    }
 
     for (var tick : stockData.keySet()) {
       var tempJSON = (JSONObject) stockData.get(tick);
