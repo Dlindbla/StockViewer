@@ -1,4 +1,4 @@
-package sample;
+package GUI;
 
 import javafx.scene.Node;
 import javafx.scene.chart.NumberAxis;

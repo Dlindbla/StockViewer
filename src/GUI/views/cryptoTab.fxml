@@ -6,13 +6,12 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<?import sample.LineChartWithMarkers?>
+<?import GUI.LineChartWithMarkers?>
 <?import javafx.scene.chart.NumberAxis?>
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.Controller">
     <children>
-        <HBox maxHeight="-Infinity" maxWidth="-Infinity" AnchorPane.bottomAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.leftAnchor="0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="579.0" prefWidth="600.0" styleClass="MainBox" stylesheets="@/sample/AppStyle.css">
-            <children>
-                <AnchorPane maxWidth="200" prefHeight="200.0" prefWidth="200.0" styleClass="leftSideSettings">
+            <SplitPane AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0">
+                <AnchorPane prefHeight="200.0" prefWidth="200.0" styleClass="leftSideSettings">
                     <children>
                         <VBox layoutX="13.0" layoutY="13.0" prefHeight="306.0" prefWidth="174.0">
                             <children>
@@ -41,7 +40,6 @@
                                         <TableColumn fx:id="priceColumn" minWidth="0.0" prefWidth="113" text="COMPANY NAME" />
                                     </columns>
                                 </TableView>
-                                <Button mnemonicParsing="false" onAction="#resetZoom" prefHeight="26" prefWidth="200" text="UNZOOM" />
                             </children>
                         </VBox>
                     </children>
@@ -59,7 +57,6 @@
                         </LineChartWithMarkers>
                     </children>
                 </AnchorPane>
-            </children>
-        </HBox>
+            </SplitPane>
     </children>
 </AnchorPane>

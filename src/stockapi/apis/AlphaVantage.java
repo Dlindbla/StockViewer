@@ -34,6 +34,7 @@ public class AlphaVantage extends StockApi {
     var json = makeJSONWebRequest(baseApiUrl, params);
     var data = parseStockData(json, symbol, interval);
 
+    System.out.println(baseApiUrl + params);
     return data;
   }
 

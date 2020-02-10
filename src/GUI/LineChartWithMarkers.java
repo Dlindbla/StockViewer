@@ -1,4 +1,4 @@
-package sample;
+package GUI;
 
 import javafx.beans.InvalidationListener;
 import javafx.beans.NamedArg;
@@ -10,7 +10,6 @@ import javafx.scene.chart.Axis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
@@ -19,7 +18,6 @@ import javafx.scene.text.Text;
 import utils.PearsonCorrelation;
 import java.util.ArrayList;
 import java.util.Objects;
-import java.util.Stack;
 
 /*
 * THIS CLASS WAS COPIED FROM : https://stackoverflow.com/questions/28952133/how-to-add-two-vertical-lines-with-javafx-linechart

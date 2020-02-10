@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+
+<?import javafx.scene.text.Font?>
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <Label layoutX="14.0" layoutY="14.0" prefHeight="17.0" prefWidth="452.0" text="Welcome to StockViewer Version 0.0.1" textFill="#504f4f">
+            <font>
+                <Font name="Arial" size="21.0" />
+            </font>
+        </Label>
+        <Label layoutX="14.0" layoutY="51.0" prefHeight="17.0" prefWidth="235.0" text="How To Use" textFill="#504f4f">
+            <font>
+                <Font name="Arial" size="18.0" />
+            </font>
+        </Label>
+        <Label layoutX="43.0" layoutY="83.0" prefHeight="17.0" prefWidth="364.0" text="Zoom : Click and drag, use right click to cancel zoom" />
+        <Label layoutX="43.0" layoutY="138.0" prefHeight="17.0" prefWidth="476.0" text="Add stocks : Use the searchbar to find stocks, select them in the dropdown menu" />
+        <Label layoutX="43.0" layoutY="155.0" prefHeight="17.0" prefWidth="476.0" text="                     then press add to add them to the linechart" />
+        <Label layoutX="43.0" layoutY="111.0" prefHeight="17.0" prefWidth="364.0" text="Unzoom: Right click the linechart, while not zooming" />
+    </children>
+</AnchorPane>
+

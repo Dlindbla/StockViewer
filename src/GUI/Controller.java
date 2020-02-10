@@ -1,4 +1,4 @@
-package sample;
+package GUI;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -53,7 +53,7 @@ public class Controller implements Initializable {
     Button testButton;
 
     public void addToTestTab() throws IOException {
-        Pane pane  = FXMLLoader.load(getClass().getResource("cryptoTab.fxml"));
+        Pane pane  = FXMLLoader.load(getClass().getResource("views/cryptoTab.fxml"));
         pane.getStylesheets().add(getClass().getResource("AppStyle.css").toString());
         testTab.setContent(pane);
     }
@@ -122,7 +122,6 @@ public class Controller implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
-        //TODO : Move as many lines as possible from here to new.FXML
         tickerTable.setPlaceholder(new Label("NO TICKERS SELECTED"));
         symbolColumn.setCellValueFactory(new PropertyValueFactory<>("symbol"));
         priceColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -145,7 +144,6 @@ public class Controller implements Initializable {
                 return null;
             }
         });
-
     }
 
     private class GraphDrawer extends Service<ArrayList<XYChart.Series<Number,Number>>> {

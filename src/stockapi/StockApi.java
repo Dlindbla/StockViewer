@@ -67,7 +67,7 @@ public abstract class StockApi {
       if (firstParam) firstParam = false;
     }
     var url = new URL(baseUrl);
-
+    System.out.println(url);
     // Make and parse web request
     JSONParser parser = new JSONParser();
     var obj = (JSONObject) parser.parse(new InputStreamReader(url.openStream()));

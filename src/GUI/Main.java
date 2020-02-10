@@ -1,4 +1,4 @@
-package sample;
+package GUI;
 
 
 import javafx.application.Application;
@@ -17,10 +17,9 @@ public class Main extends Application {
     }
 
     public void start(Stage FirstStage) throws IOException, ParseException {
-        Parent root = FXMLLoader.load(getClass().getResource("new.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("views/new.fxml"));
         root.getStylesheets().add(getClass().getResource("AppStyle.css").toString());
         Scene scene = new Scene(root);
-
         FirstStage.setTitle("StockViewer V.0.0.1");
         FirstStage.getIcons().add(new Image("resources/stonks.png"));
         FirstStage.setScene(scene);
