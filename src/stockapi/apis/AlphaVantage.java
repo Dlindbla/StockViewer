@@ -35,14 +35,16 @@ public class AlphaVantage extends StockApi {
     var json = makeJSONWebRequest(baseApiUrl, params);
 
     // Check for any errors
-    if (json.containsKey("Note")) throw new ApiException(json.get("Note").toString());
+    if (json.containsKey("Note"))
+      throw new ApiException(json.get("Note").toString());
 
     var data = parseStockData(json, symbol, interval);
-    
+
     return data;
   }
 
-  protected ArrayList<SearchResult> searchInternal(String searchString) throws ApiException, IOException, ParseException {
+  protected ArrayList<SearchResult> searchInternal(String searchString)
+      throws ApiException, IOException, ParseException {
     // Build params
     var params = new HashMap<String, String>();
     params.put("function", "SYMBOL_SEARCH");
@@ -53,7 +55,8 @@ public class AlphaVantage extends StockApi {
     var json = makeJSONWebRequest(baseApiUrl, params);
 
     // Check for any errors
-    if (json.containsKey("Note")) throw new ApiException(json.get("Note").toString());
+    if (json.containsKey("Note"))
+      throw new ApiException(json.get("Note").toString());
 
     var result = parseSearchResult(json);
 
@@ -61,13 +64,17 @@ public class AlphaVantage extends StockApi {
   }
 
   private StockData parseStockData(JSONObject object, String stockSymbol, String interval)
-      throws java.text.ParseException {
+      throws ApiException, java.text.ParseException {
     var stock = new StockData(stockSymbol, interval);
     JSONObject stockData;
     if (object.containsKey(interval + " Time Series")) {
       stockData = (JSONObject) object.get(interval + " Time Series");
-    } else {
+    } else if (object.containsKey(interval + " Adjusted Time Series")) {
+      stockData = (JSONObject) object.get(interval + " Adjusted Time Series");
+    } else if (object.containsKey("Time Series " + "(" + interval + ")")) {
       stockData = (JSONObject) object.get("Time Series " + "(" + interval + ")");
+    } else {
+      throw new ApiException("no data found");
     }
 
     for (var tick : stockData.keySet()) {
@@ -78,7 +85,7 @@ public class AlphaVantage extends StockApi {
       var high = Double.parseDouble(tempJSON.get("2. high").toString());
       var low = Double.parseDouble(tempJSON.get("3. low").toString());
       var close = Double.parseDouble(tempJSON.get("4. close").toString());
-      double volume;
+      double volume = 0;
 
       // ITEMS FOR ADJUSTED DATA
       double adjusted_close = 0;
@@ -86,10 +93,10 @@ public class AlphaVantage extends StockApi {
       double split_coefficient = 0;
       if (tempJSON.containsKey("5. adjusted close")) {
         adjusted_close = Double.parseDouble(tempJSON.get("5. adjusted close").toString());
-        dividend_amount = Double.parseDouble(tempJSON.get("7. dividend amount").toString());
-        split_coefficient = Double.parseDouble(tempJSON.get("8. split coefficient").toString());
         volume = Double.parseDouble(tempJSON.get("6. volume").toString());
-      } else {
+        dividend_amount = Double.parseDouble(tempJSON.get("7. dividend amount").toString());
+        //split_coefficient = Double.parseDouble(tempJSON.get("8. split coefficient").toString());
+      } else if (tempJSON.containsKey("5. volume")) {
         volume = Double.parseDouble(tempJSON.get("5. volume").toString());
       }
 
