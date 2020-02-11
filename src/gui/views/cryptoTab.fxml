@@ -8,7 +8,7 @@
 <AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.controllers.Controller">
     <children>
             <HBox AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0">
-                <AnchorPane prefHeight="1080.0" prefWidth="200.0" styleClass="leftSideSettings">
+                <AnchorPane prefHeight="700.0" prefWidth="200.0" styleClass="leftSideSettings">
                     <children>
                         <VBox layoutX="13.0" layoutY="13.0" prefHeight="306.0" prefWidth="174.0">
                             <children>

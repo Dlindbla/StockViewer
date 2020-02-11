@@ -18,7 +18,7 @@ public class Main extends Application {
         Parent root = FXMLLoader.load(getClass().getResource("views/mainWindow.fxml"));
         root.getStylesheets().add(getClass().getResource("AppStyle.css").toString());
         Scene scene = new Scene(root);
-        FirstStage.setTitle("StockViewer V.0.0.1");
+        FirstStage.setTitle("StockViewer V.0.2.\uD83C\uDF5D");
         FirstStage.getIcons().add(new Image("resources/stonks.png"));
         FirstStage.setScene(scene);
         FirstStage.show();
