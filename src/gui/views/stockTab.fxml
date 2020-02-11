@@ -15,7 +15,7 @@
                         <VBox layoutX="13.0" layoutY="13.0" prefHeight="306.0" prefWidth="174.0">
                             <children>
                                 <ComboBox fx:id="intervalCombobox" onAction="#onIntervalChange" prefHeight="26.0" prefWidth="184.0" promptText="SET TIME INTERVAL" styleClass="leftTextField" />
-                                <ComboBox fx:id="selectedData" prefHeight="26.0" prefWidth="184.0" promptText="DATA TYPE" styleClass="leftTextField" />
+                                <ComboBox fx:id="selectedData" onAction="#onDataTypeChange" prefHeight="26.0" prefWidth="184.0" promptText="DATA TYPE" styleClass="leftTextField" />
                                 <TextField fx:id="leftTextField" onAction="#onEnter" prefHeight="26.0" prefWidth="174.0" promptText="SEARCH FOR TICKERS HERE" styleClass="leftTextField">
                                     <tooltip>
                                         <Tooltip text="Enter a search string and press the search icon to get stock ticker suggestions" />

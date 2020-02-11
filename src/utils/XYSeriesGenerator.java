@@ -64,11 +64,24 @@ public class XYSeriesGenerator {
     public XYChart.Series<Number, Number> createXYSeries(StockData data) {
         XYChart.Series<Number, Number> series = new XYChart.Series();
         series.setName(data.getSymbol());
+        var dataType = data.getDataType();
 
         for (var tick : data.getTicks()) {
             XYChart.Data tickData = new XYChart.Data();
-            tickData.setYValue(tick.getClose());
             tickData.setExtraValue(data.getSymbol());
+            double yValue = tick.getClose();
+            if (dataType.equals("Open")) {
+                yValue = tick.getOpen();
+            } else if (dataType.equals("High")) {
+                yValue = tick.getHigh();
+            } else if (dataType.equals("Low")) {
+                yValue = tick.getLow();
+            } else if (dataType.equals("Adjusted close")) {
+                yValue = tick.getAdjustedClose();
+            } else if (dataType.equals("Volume")) {
+                yValue = tick.getVolume();
+            }
+            tickData.setYValue(yValue);
 
             // Get the right position on the Xaxis by using the index of the tickdate from
             // the alldates Array

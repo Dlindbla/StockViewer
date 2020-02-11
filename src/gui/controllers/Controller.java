@@ -48,6 +48,8 @@ public class Controller implements Initializable {
     @FXML
     ComboBox<String> intervalCombobox;
     @FXML
+    ComboBox<String> selectedData;
+    @FXML
     Tab testTab;
     @FXML
     Pane testTabPane;
@@ -69,6 +71,17 @@ public class Controller implements Initializable {
 
     // When interval is changed
     public void onIntervalChange() {
+        var interval = intervalCombobox.getSelectionModel().getSelectedItem();
+        if (interval.equals("Monthly") || interval.equals("Weekly") || interval.equals("Daily")) {
+            selectedData.getItems().setAll("Open", "High", "Low", "Close", "Volume", "Adjusted close");
+        } else {
+            selectedData.getItems().setAll("Open", "High", "Low", "Close", "Volume");
+        }
+
+        graphDrawer.restart();
+    }
+
+    public void onDataTypeChange() {
         graphDrawer.restart();
     }
 
@@ -126,6 +139,15 @@ public class Controller implements Initializable {
         return timeSeries.get(series.indexOf(intervalboxString));
     }
 
+    public String getDataType() {
+        var selectedDataType = selectedData.getSelectionModel().getSelectedItem();
+        if (selectedDataType == null) {
+            selectedDataType = "Close";
+        }
+
+        return selectedDataType;
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
@@ -181,13 +203,13 @@ public class Controller implements Initializable {
                         }
 
                         // Fetch data
-                        var stockDataArrayList = alphaVantage.query(symbolStrings, interval, getTimeSerie());
+                        var stockDataArrayList = alphaVantage.query(symbolStrings, interval, getTimeSerie(), getDataType());
 
                         queueLineChartClear();
                         gen.populateSeries(stockDataArrayList);
                         return gen.getSeries();
                     } else {
-                        return null;
+                        return new ArrayList<XYChart.Series<Number, Number>>();
                     }
                 }
 

@@ -19,7 +19,7 @@ import stockapi.StockTick;
 public class AlphaVantage extends StockApi {
   private final String baseApiUrl = "https://www.alphavantage.co/query";
 
-  protected StockData queryInternal(String symbol, String interval, String timeSeries)
+  protected StockData queryInternal(String symbol, String interval, String timeSeries, String dataType)
       throws ApiException, IOException, ParseException, java.text.ParseException {
     // Build params
     var params = new HashMap<String, String>();
@@ -38,7 +38,7 @@ public class AlphaVantage extends StockApi {
     if (json.containsKey("Note"))
       throw new ApiException(json.get("Note").toString());
 
-    var data = parseStockData(json, symbol, interval);
+    var data = parseStockData(json, symbol, interval, dataType);
 
     return data;
   }
@@ -63,9 +63,9 @@ public class AlphaVantage extends StockApi {
     return result;
   }
 
-  private StockData parseStockData(JSONObject object, String stockSymbol, String interval)
+  private StockData parseStockData(JSONObject object, String stockSymbol, String interval, String dataType)
       throws ApiException, java.text.ParseException {
-    var stock = new StockData(stockSymbol, interval);
+    var stock = new StockData(stockSymbol, interval, dataType);
     JSONObject stockData;
     if (object.containsKey(interval + " Time Series")) {
       stockData = (JSONObject) object.get(interval + " Time Series");
@@ -95,7 +95,8 @@ public class AlphaVantage extends StockApi {
         adjusted_close = Double.parseDouble(tempJSON.get("5. adjusted close").toString());
         volume = Double.parseDouble(tempJSON.get("6. volume").toString());
         dividend_amount = Double.parseDouble(tempJSON.get("7. dividend amount").toString());
-        //split_coefficient = Double.parseDouble(tempJSON.get("8. split coefficient").toString());
+        if (tempJSON.containsKey("8. split coefficient"))
+          split_coefficient = Double.parseDouble(tempJSON.get("8. split coefficient").toString());
       } else if (tempJSON.containsKey("5. volume")) {
         volume = Double.parseDouble(tempJSON.get("5. volume").toString());
       }

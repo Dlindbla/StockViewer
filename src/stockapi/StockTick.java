@@ -15,8 +15,28 @@ public class StockTick implements Comparable<StockTick> {
     double dividend_amount;
     double split_coefficient;
 
+    public double getOpen() {
+        return open;
+    }
+
+    public double getHigh() {
+        return high;
+    }
+
+    public double getLow() {
+        return low;
+    }
+
     public double getClose() {
         return close;
+    }
+
+    public double getAdjustedClose() {
+        return adjusted_close;
+    }
+
+    public double getVolume() {
+        return volume;
     }
 
     public String getRawDate() {

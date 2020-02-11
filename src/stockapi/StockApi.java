@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public abstract class StockApi {
-  public ArrayList<StockData> query(ArrayList<String> symbols, String interval, String timeSeries) throws ApiException {
+  public ArrayList<StockData> query(ArrayList<String> symbols, String interval, String timeSeries, String dataType) throws ApiException {
     var response = new ArrayList<StockData>();
 
     for (var symbol : symbols) {
@@ -20,13 +20,17 @@ public abstract class StockApi {
 
       // Add data if cache already contains data
       if (stockCache.contains(key)) {
-        response.add(stockCache.get(key));
+        // Set data type
+        var obj = stockCache.get(key);
+        obj.dataType = dataType;
+
+        response.add(obj);
         continue;
       }
 
       // Otherwise fetch and add to cache
       try {
-        var stockData = queryInternal(symbol, interval, timeSeries);
+        var stockData = queryInternal(symbol, interval, timeSeries, dataType);
         response.add(stockData);
         stockCache.add(key, stockData);
       } catch (ApiException ex) {
@@ -57,7 +61,7 @@ public abstract class StockApi {
     return result;
   }
 
-  protected abstract StockData queryInternal(String symbol, String interval, String timeSeries)
+  protected abstract StockData queryInternal(String symbol, String interval, String timeSeries, String dataType)
       throws ApiException, IOException, ParseException, java.text.ParseException;
 
   protected abstract ArrayList<SearchResult> searchInternal(String searchString)
@@ -74,6 +78,7 @@ public abstract class StockApi {
     }
     var url = new URL(baseUrl);
     System.out.println(url);
+
     // Make and parse web request
     JSONParser parser = new JSONParser();
     var obj = (JSONObject) parser.parse(new InputStreamReader(url.openStream()));

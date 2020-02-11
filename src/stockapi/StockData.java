@@ -5,6 +5,7 @@ import java.util.ArrayList;
 public class StockData {
     String symbol;
     String interval;
+    String dataType;
     ArrayList<StockTick> ticks = new ArrayList<StockTick>();
 
     public String getSymbol() {
@@ -13,6 +14,10 @@ public class StockData {
 
     public String getInterval() {
         return interval;
+    }
+
+    public String getDataType() {
+        return dataType;
     }
 
     public int getTickAmount() {
@@ -27,8 +32,9 @@ public class StockData {
         ticks.add(tick);
     }
 
-    public StockData(String symbol, String interval) {
+    public StockData(String symbol, String interval, String dataType) {
         this.symbol = symbol;
         this.interval = interval;
+        this.dataType = dataType;
     }
 }
