@@ -10,6 +10,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 
+import stockapi.ApiException;
 import stockapi.SearchResult;
 import stockapi.StockApi;
 import stockapi.StockData;
@@ -19,7 +20,7 @@ public class AlphaVantage extends StockApi {
   private final String baseApiUrl = "https://www.alphavantage.co/query";
 
   protected StockData queryInternal(String symbol, String interval, String timeSeries)
-      throws IOException, ParseException, java.text.ParseException {
+      throws ApiException, IOException, ParseException, java.text.ParseException {
     // Build params
     var params = new HashMap<String, String>();
     params.put("function", timeSeries);
@@ -32,13 +33,16 @@ public class AlphaVantage extends StockApi {
 
     // Make web request and parse data
     var json = makeJSONWebRequest(baseApiUrl, params);
-    var data = parseStockData(json, symbol, interval);
 
-    System.out.println(baseApiUrl + params);
+    // Check for any errors
+    if (json.containsKey("Note")) throw new ApiException(json.get("Note").toString());
+
+    var data = parseStockData(json, symbol, interval);
+    
     return data;
   }
 
-  protected ArrayList<SearchResult> searchInternal(String searchString) throws IOException, ParseException {
+  protected ArrayList<SearchResult> searchInternal(String searchString) throws ApiException, IOException, ParseException {
     // Build params
     var params = new HashMap<String, String>();
     params.put("function", "SYMBOL_SEARCH");
@@ -47,6 +51,10 @@ public class AlphaVantage extends StockApi {
 
     // Make web request and parse data
     var json = makeJSONWebRequest(baseApiUrl, params);
+
+    // Check for any errors
+    if (json.containsKey("Note")) throw new ApiException(json.get("Note").toString());
+
     var result = parseSearchResult(json);
 
     return result;

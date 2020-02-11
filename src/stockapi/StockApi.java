@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public abstract class StockApi {
-  public ArrayList<StockData> query(ArrayList<String> symbols, String interval, String timeSeries) {
+  public ArrayList<StockData> query(ArrayList<String> symbols, String interval, String timeSeries) throws ApiException {
     var response = new ArrayList<StockData>();
 
     for (var symbol : symbols) {
@@ -29,6 +29,8 @@ public abstract class StockApi {
         var stockData = queryInternal(symbol, interval, timeSeries);
         response.add(stockData);
         stockCache.add(key, stockData);
+      } catch (ApiException ex) {
+        throw ex;
       } catch (Exception ex) {
       }
     }
@@ -36,7 +38,7 @@ public abstract class StockApi {
     return response;
   }
 
-  public ArrayList<SearchResult> search(String searchString) {
+  public ArrayList<SearchResult> search(String searchString) throws ApiException {
     // Check if search is cached
     if (searchCache.contains(searchString)) {
       return searchCache.get(searchString);
@@ -47,6 +49,8 @@ public abstract class StockApi {
     try {
       result = searchInternal(searchString);
       searchCache.add(searchString, result);
+    } catch (ApiException ex) {
+      throw ex;
     } catch (Exception ex) {
     }
 
@@ -54,9 +58,10 @@ public abstract class StockApi {
   }
 
   protected abstract StockData queryInternal(String symbol, String interval, String timeSeries)
-      throws IOException, ParseException, java.text.ParseException;
+      throws ApiException, IOException, ParseException, java.text.ParseException;
 
-  protected abstract ArrayList<SearchResult> searchInternal(String searchString) throws IOException, ParseException;
+  protected abstract ArrayList<SearchResult> searchInternal(String searchString)
+      throws ApiException, IOException, ParseException;
 
   protected JSONObject makeJSONWebRequest(String baseUrl, HashMap<String, String> params)
       throws IOException, ParseException {
@@ -64,7 +69,8 @@ public abstract class StockApi {
     boolean firstParam = true;
     for (var param : params.entrySet()) {
       baseUrl += String.format("%s%s=%s", (firstParam ? "?" : "&"), param.getKey(), param.getValue());
-      if (firstParam) firstParam = false;
+      if (firstParam)
+        firstParam = false;
     }
     var url = new URL(baseUrl);
     System.out.println(url);

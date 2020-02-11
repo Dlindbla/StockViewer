@@ -199,8 +199,7 @@ public class Controller implements Initializable {
 
                 @Override
                 protected void failed() {
-                    getException();
-
+                    System.out.printf("failed to query: %s\n", getException().getMessage());
                 }
             };
         }
@@ -230,7 +229,7 @@ public class Controller implements Initializable {
                 }
                 @Override
                 protected void failed() {
-                    getException();
+                    System.out.printf("failed to search: %s\n", getException().getMessage());
                 }
             };
         }
