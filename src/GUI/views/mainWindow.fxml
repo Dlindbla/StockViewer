@@ -1,25 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.chart.NumberAxis?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.Tooltip?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-
-<?import GUI.LineChartWithMarkers?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.Tab?>
-<?import javafx.scene.layout.Pane?>
-<VBox xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+
+
+<VBox xmlns="http://javafx.com/javafx/10.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.controllers.mainWindowController">
     <children>
         <MenuBar>
             <menus>
@@ -35,20 +24,20 @@
                 </Menu>
                 <Menu mnemonicParsing="false" text="Help">
                     <items>
-                        <MenuItem mnemonicParsing="false" text="About" />
+                        <MenuItem mnemonicParsing="false" text="About" fx:id="aboutTab" onAction="#openWelcomeTab"/>
                     </items>
                 </Menu>
             </menus>
         </MenuBar>
-        <TabPane tabClosingPolicy="SELECTED_TAB">
+        <TabPane tabClosingPolicy="SELECTED_TAB" fx:id="tabPane">
             <Tab closable="true" text="Welcome!">
                 <fx:include source="welcomeTab.fxml"/>
             </Tab>
         <Tab text="Crypto Currency" fx:id="testTab" closable="false" >
-            <fx:include source="cryptoTab.fxml"/>
+                <fx:include source="cryptoTab.fxml"/>
         </Tab>
         <Tab text="Stock Investment" closable="false">
-            <fx:include source="stockTab.fxml"/>
+                <fx:include source="stockTab.fxml"/>
         </Tab>
         </TabPane>
     </children>

@@ -1,5 +1,7 @@
-package GUI;
+package GUI.controllers;
 
+import GUI.LineChartWithMarkers;
+import GUI.controllers.LineChartMouseController;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

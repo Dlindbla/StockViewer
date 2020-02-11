@@ -1,5 +1,6 @@
-package GUI;
+package GUI.controllers;
 
+import GUI.LineChartWithMarkers;
 import javafx.scene.Node;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
@@ -11,7 +12,7 @@ public class LineChartMouseController {
     Integer startValue;
 
     public void setMouseController(LineChartWithMarkers lineChart, NumberAxis xAxis, NumberAxis yAxis,
-            XYSeriesGenerator gen) {
+                                   XYSeriesGenerator gen) {
         final Node chartBackground = lineChart.lookup(".chart-plot-background");
 
         // Get the amount of values on the xAxis

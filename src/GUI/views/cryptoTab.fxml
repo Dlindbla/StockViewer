@@ -1,17 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-
 <?import GUI.LineChartWithMarkers?>
 <?import javafx.scene.chart.NumberAxis?>
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.Controller">
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.controllers.Controller">
     <children>
-            <SplitPane AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0">
-                <AnchorPane prefHeight="200.0" prefWidth="200.0" styleClass="leftSideSettings">
+            <HBox AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0">
+                <AnchorPane prefHeight="1080.0" prefWidth="200.0" styleClass="leftSideSettings">
                     <children>
                         <VBox layoutX="13.0" layoutY="13.0" prefHeight="306.0" prefWidth="174.0">
                             <children>
@@ -46,8 +43,8 @@
                 </AnchorPane>
                 <AnchorPane prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS">
                     <children>
-
-                        <LineChartWithMarkers fx:id="lineChart" createSymbols="false" layoutX="14.0" prefHeight="400.0" prefWidth="296.0" styleClass="lineChart" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="20" AnchorPane.topAnchor="0.0">
+                        <SplitPane orientation="VERTICAL" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0">
+                        <LineChartWithMarkers  fx:id="lineChart" createSymbols="false" layoutX="14.0" prefHeight="800" prefWidth="296.0" styleClass="lineChart" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="20" AnchorPane.topAnchor="0.0">
                             <xAxis>
                                 <NumberAxis label="Date" minorTickVisible="false" side="BOTTOM" fx:id="xAxis" />
                             </xAxis>
@@ -55,8 +52,12 @@
                                 <NumberAxis fx:id="yAxis" label="Price" side="LEFT"/>
                             </yAxis>
                         </LineChartWithMarkers>
+                            <AnchorPane>
+
+                            </AnchorPane>
+                        </SplitPane>
                     </children>
                 </AnchorPane>
-            </SplitPane>
+            </HBox>
     </children>
 </AnchorPane>
