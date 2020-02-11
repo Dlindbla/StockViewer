@@ -49,7 +49,7 @@ public class AlphaVantage extends StockApi {
     var json = makeJSONWebRequest(baseApiUrl, params);
     var result = parseSearchResult(json);
 
-    return new ArrayList<SearchResult>(result);
+    return result;
   }
 
   private StockData parseStockData(JSONObject object, String stockSymbol, String interval)

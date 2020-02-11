@@ -67,6 +67,11 @@ public class Controller implements Initializable {
         threadedSearchFunction();
     }
 
+    // When interval is changed
+    public void onIntervalChange() {
+        graphDrawer.restart();
+    }
+
     // Initialize stock data sources
     AlphaVantage alphaVantage = new AlphaVantage();
 
@@ -104,7 +109,7 @@ public class Controller implements Initializable {
 
     public void addTicker() {
         SearchResult item = leftComboBox.getSelectionModel().getSelectedItem();
-        if (!tickerTable.getItems().contains(item)) {
+        if (!tickerTable.getItems().contains(item) && item != null) {
             tickerTable.getItems().add(item);
             graphDrawer.restart();
         }
