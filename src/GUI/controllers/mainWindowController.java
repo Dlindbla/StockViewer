@@ -1,4 +1,4 @@
-package GUI.controllers;
+package gui.controllers;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -21,7 +21,7 @@ public class mainWindowController implements Initializable {
 
     public void openWelcomeTab() throws IOException {
         Tab welcomeTab = new Tab();
-        welcomeTab.setContent(FXMLLoader.load(this.getClass().getResource("/GUI/views/welcomeTab.fxml")));
+        welcomeTab.setContent(FXMLLoader.load(this.getClass().getResource("/gui/views/welcomeTab.fxml")));
         welcomeTab.setText("Welcome!");
         tabPane.getTabs().add(0,welcomeTab);
         SingleSelectionModel<Tab> selectionModel = tabPane.getSelectionModel();

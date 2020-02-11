@@ -3,12 +3,12 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
-<?import GUI.LineChartWithMarkers?>
+<?import gui.LineChartWithMarkers?>
 <?import javafx.scene.chart.NumberAxis?>
 
-<AnchorPane fx:controller="GUI.controllers.Controller" xmlns="http://javafx.com/javafx/10.0.2 " xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane fx:controller="gui.controllers.Controller" xmlns="http://javafx.com/javafx/10.0.2 " xmlns:fx="http://javafx.com/fxml/1">
     <children>
-        <HBox maxHeight="-Infinity" maxWidth="-Infinity" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.leftAnchor="0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="579.0" prefWidth="600.0" styleClass="MainBox" stylesheets="@/GUI/AppStyle.css">
+        <HBox maxHeight="-Infinity" maxWidth="-Infinity" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.leftAnchor="0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="579.0" prefWidth="600.0" styleClass="MainBox" stylesheets="@/gui/AppStyle.css">
             <children>
                 <AnchorPane maxWidth="200" prefHeight="200.0" prefWidth="200.0" styleClass="leftSideSettings">
                     <children>

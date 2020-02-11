@@ -2,10 +2,10 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import GUI.LineChartWithMarkers?>
+<?import gui.LineChartWithMarkers?>
 <?import javafx.scene.chart.NumberAxis?>
 
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.controllers.Controller">
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.controllers.Controller">
     <children>
             <HBox AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0">
                 <AnchorPane prefHeight="1080.0" prefWidth="200.0" styleClass="leftSideSettings">

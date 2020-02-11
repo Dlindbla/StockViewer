@@ -1,4 +1,4 @@
-package GUI;
+package gui;
 
 import javafx.beans.InvalidationListener;
 import javafx.beans.NamedArg;

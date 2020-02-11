@@ -1,6 +1,6 @@
-package GUI.controllers;
+package gui.controllers;
 
-import GUI.LineChartWithMarkers;
+import gui.LineChartWithMarkers;
 import javafx.scene.Node;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
