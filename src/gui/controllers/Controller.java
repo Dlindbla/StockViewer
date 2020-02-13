@@ -12,13 +12,13 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.*;
 import javafx.scene.layout.Pane;
-import stockapi.SearchResult;
-import stockapi.apis.AlphaVantage;
-import utils.XYSeriesGenerator;
+import utils.GraphGenerator;
+import utils.PlottableObject;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.StringConverter;
-
+import stockapi.ApiSearchResult;
+import stockapi.apis.AlphaVantageApi;
 
 import java.io.IOException;
 import java.net.URL;
@@ -38,13 +38,13 @@ public class Controller implements Initializable {
     @FXML
     TextField leftTextField;
     @FXML
-    TableView<SearchResult> tickerTable;
+    TableView<ApiSearchResult> tickerTable;
     @FXML
-    ComboBox<SearchResult> leftComboBox;
+    ComboBox<ApiSearchResult> leftComboBox;
     @FXML
-    TableColumn<SearchResult, String> symbolColumn;
+    TableColumn<ApiSearchResult, String> symbolColumn;
     @FXML
-    TableColumn<SearchResult, Double> priceColumn;
+    TableColumn<ApiSearchResult, Double> priceColumn;
     @FXML
     ComboBox<String> intervalCombobox;
     @FXML
@@ -85,10 +85,10 @@ public class Controller implements Initializable {
     }
 
     // Initialize stock data sources
-    AlphaVantage alphaVantage = new AlphaVantage();
+    AlphaVantageApi alphaVantage = new AlphaVantageApi();
 
     LineChartMouseController lineChartMouseController = new LineChartMouseController();
-    XYSeriesGenerator gen = new XYSeriesGenerator();
+    GraphGenerator gen = new GraphGenerator();
     private GraphDrawer graphDrawer = new GraphDrawer();
     private SearchFunction searchFunction = new SearchFunction();
 
@@ -120,7 +120,7 @@ public class Controller implements Initializable {
     }
 
     public void addTicker() {
-        SearchResult item = leftComboBox.getSelectionModel().getSelectedItem();
+        var item = leftComboBox.getSelectionModel().getSelectedItem();
         if (!tickerTable.getItems().contains(item) && item != null) {
             tickerTable.getItems().add(item);
             graphDrawer.restart();
@@ -156,14 +156,14 @@ public class Controller implements Initializable {
 
         intervalCombobox.getItems().addAll("15min", "5min", "1min", "Monthly", "Weekly", "Daily");
         yAxis.setForceZeroInRange(false);
-        lineChartMouseController.setMouseController(lineChart,xAxis,yAxis,gen);
+        lineChartMouseController.setMouseController(lineChart, xAxis, yAxis, gen);
         xAxis.setTickLabelFormatter(new StringConverter<>() {
             @Override
             public String toString(Number number) {
                 //Check if the alldates has been generated
                 //iterate over all the Dates and assign them
-                if (!gen.getAllDates().isEmpty() && number.intValue() < gen.getAllDates().size()) {
-                    return gen.getAllDates().get(number.intValue());
+                if (!gen.getxIndexList().isEmpty() && number.intValue() < gen.getxIndexList().size()) {
+                    return gen.getxIndexList().get(number.intValue()).toString();
                 }
                 return null;
             }
@@ -194,18 +194,14 @@ public class Controller implements Initializable {
                             queueLineChartClear();
                         }
 
-                        ArrayList<String> symbolStrings = new ArrayList<>();
-
-                        //add all stock symbols from tableview to list, skip items already drawn
-                        for (SearchResult item : tickerTable.getItems()) {
-                            symbolStrings.add(item.getSymbol());
+                        // Fetch all symbols
+                        var stockDataPoints = new ArrayList<PlottableObject>();
+                        for (var item : tickerTable.getItems()) {
+                            stockDataPoints.add(alphaVantage.query(item.getSymbol(), interval, getDataType()));
                         }
 
-                        // Fetch data
-                        var stockDataArrayList = alphaVantage.query(symbolStrings, interval, getTimeSerie(), getDataType());
-
                         queueLineChartClear();
-                        gen.populateSeries(stockDataArrayList);
+                        gen.populateSeries(stockDataPoints);
                         return gen.getSeries();
                     } else {
                         return new ArrayList<XYChart.Series<Number, Number>>();
@@ -226,16 +222,16 @@ public class Controller implements Initializable {
         }
     }
 
-    private class SearchFunction extends Service<ObservableList<SearchResult>> {
+    private class SearchFunction extends Service<ObservableList<ApiSearchResult>> {
         @Override
-        protected Task<ObservableList<SearchResult>> createTask() {
-            return new Task<ObservableList<SearchResult>>() {
+        protected Task<ObservableList<ApiSearchResult>> createTask() {
+            return new Task<ObservableList<ApiSearchResult>>() {
                 @Override
-                protected ObservableList<SearchResult> call() throws Exception {
+                protected ObservableList<ApiSearchResult> call() throws Exception {
                     String searchString = leftTextField.getText();
                     if (!(searchString.isEmpty())) {
                         var res = alphaVantage.search(searchString);
-                        ObservableList<SearchResult> list = FXCollections.observableArrayList();
+                        ObservableList<ApiSearchResult> list = FXCollections.observableArrayList();
                         list.addAll(res);
 
                         return list;

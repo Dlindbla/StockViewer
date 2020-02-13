@@ -5,14 +5,14 @@ import javafx.scene.Node;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.input.MouseButton;
-import utils.XYSeriesGenerator;
+import utils.GraphGenerator;
 
 public class LineChartMouseController {
     // Start value for zoom
     Integer startValue;
 
     public void setMouseController(LineChartWithMarkers lineChart, NumberAxis xAxis, NumberAxis yAxis,
-                                   XYSeriesGenerator gen) {
+            GraphGenerator gen) {
         final Node chartBackground = lineChart.lookup(".chart-plot-background");
 
         // Get the amount of values on the xAxis
@@ -22,9 +22,9 @@ public class LineChartMouseController {
             if (mouseEvent.getButton() == MouseButton.PRIMARY) {
                 int xValue = xAxis.getValueForDisplay(mouseEvent.getX()).intValue();
                 startValue = xValue;
-                
+
                 // Get the date from the hiddenseries
-                int dateArraySize = gen.getAllDates().size();
+                int dateArraySize = gen.getxIndexList().size();
                 if (xValue < dateArraySize) {
                     XYChart.Data<Number, Number> item = new XYChart.Data<Number, Number>();
                     item.setYValue(0);
@@ -68,7 +68,7 @@ public class LineChartMouseController {
             int xValue = xAxis.getValueForDisplay(mouseEvent.getX()).intValue();
 
             // Check bounds (prevents selecting past end of graph)
-            if (xValue >= gen.getAllDates().size()) {
+            if (xValue >= gen.getxIndexList().size()) {
                 return;
             }
 
@@ -93,8 +93,8 @@ public class LineChartMouseController {
                 dateDiff.setYValue(yPosistion.intValue());
                 lineChart.removeAllDateLabels();
 
-                String dateDiffString = String.format("%s - %s", gen.getAllDates().get(startValue),
-                        gen.getAllDates().get(xValue));
+                String dateDiffString = String.format("%s - %s", gen.getxIndexList().get(startValue),
+                        gen.getxIndexList().get(xValue));
                 lineChart.addDateLabel(dateDiff, dateDiffString);
 
                 // ADDS A VERTICAL LINE TO THE END OF THE RECTANGLE
