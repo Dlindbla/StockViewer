@@ -52,7 +52,8 @@ public class AlphaVantageApi extends ApiCache implements Api {
     "Low", "3. low",
     "Close", "4. close",
     "Volume", ". volume", // volume can be either 5 or 6
-    "Adjusted close", "5. adjusted close"
+    "Adjusted close", "5. adjusted close",
+    "Dividend amount", "7. dividend amount"
   );
 
   private final String[] dateFormats = new String[] { "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd" };

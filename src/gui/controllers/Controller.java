@@ -48,7 +48,7 @@ public class Controller implements Initializable {
     @FXML
     ComboBox<String> intervalCombobox;
     @FXML
-    ComboBox<String> selectedData;
+    ComboBox<String> dataTypeCombobox;
     @FXML
     Tab testTab;
     @FXML
@@ -70,9 +70,7 @@ public class Controller implements Initializable {
 
     // When interval is changed
     public void onIntervalChange() {
-        var interval = intervalCombobox.getSelectionModel().getSelectedItem();
-        selectedData.getItems().setAll(alphaVantage.getInfo().dataTypes.get(interval));
-
+        dataTypeCombobox.getItems().setAll(alphaVantage.getInfo().dataTypes.get(getInterval()));
         graphDrawer.restart();
     }
 
@@ -123,10 +121,19 @@ public class Controller implements Initializable {
         }
     }
 
+    public String getInterval() {
+        var selectedInterval = intervalCombobox.getSelectionModel().getSelectedItem();
+        if (selectedInterval == null) {
+            selectedInterval = alphaVantage.getInfo().intervals.get(0);
+        }
+
+        return selectedInterval;
+    }
+
     public String getDataType() {
-        var selectedDataType = selectedData.getSelectionModel().getSelectedItem();
+        var selectedDataType = dataTypeCombobox.getSelectionModel().getSelectedItem();
         if (selectedDataType == null) {
-            selectedDataType = "Close";
+            selectedDataType = alphaVantage.getInfo().dataTypes.get(getInterval()).get(0);
         }
 
         return selectedDataType;
@@ -134,12 +141,14 @@ public class Controller implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-
         tickerTable.setPlaceholder(new Label("NO TICKERS SELECTED"));
         symbolColumn.setCellValueFactory(new PropertyValueFactory<>("symbol"));
         priceColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
 
+        // Populate interval and datatype selection boxes
         intervalCombobox.getItems().addAll(alphaVantage.getInfo().intervals);
+        dataTypeCombobox.getItems().addAll(alphaVantage.getInfo().dataTypes.get(getInterval()));
+
         yAxis.setForceZeroInRange(false);
         lineChartMouseController.setMouseController(lineChart, xAxis, yAxis, gen);
         xAxis.setTickLabelFormatter(new StringConverter<>() {
@@ -167,12 +176,7 @@ public class Controller implements Initializable {
                 @Override
                 protected ArrayList<XYChart.Series<Number, Number>> call() throws Exception {
                     if (!tickerTable.getItems().isEmpty()) {
-                        // if user doesn't set an interval time default to 15min
-
-                        String interval = intervalCombobox.getSelectionModel().getSelectedItem();
-                        if (interval == null) {
-                            interval = alphaVantage.getInfo().intervals.get(0);
-                        }
+                        var interval = getInterval();
 
                         // check if the timeInterval has been changed and update it
                         if (!(currentDrawnInterval.equals(interval))) {
