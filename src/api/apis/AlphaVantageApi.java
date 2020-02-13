@@ -1,4 +1,4 @@
-package stockapi.apis;
+package api.apis;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -17,11 +17,11 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import javafx.util.Pair;
-import stockapi.Api;
-import stockapi.ApiCache;
-import stockapi.ApiException;
-import stockapi.ApiInfo;
-import stockapi.ApiSearchResult;
+import api.Api;
+import api.ApiCache;
+import api.ApiException;
+import api.ApiInfo;
+import api.ApiSearchResult;
 import utils.PlottableObject;
 
 public class AlphaVantageApi extends ApiCache implements Api {

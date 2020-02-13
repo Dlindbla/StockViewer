@@ -17,8 +17,8 @@ import utils.PlottableObject;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.StringConverter;
-import stockapi.ApiSearchResult;
-import stockapi.apis.AlphaVantageApi;
+import api.ApiSearchResult;
+import api.apis.AlphaVantageApi;
 
 import java.io.IOException;
 import java.net.URL;

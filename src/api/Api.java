@@ -1,4 +1,4 @@
-package stockapi;
+package api;
 
 import java.util.ArrayList;
 

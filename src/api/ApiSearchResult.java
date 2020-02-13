@@ -1,4 +1,4 @@
-package stockapi;
+package api;
 
 public class ApiSearchResult implements Comparable<ApiSearchResult> {
     String symbol;
