@@ -9,6 +9,7 @@
 
 
 <VBox xmlns="http://javafx.com/javafx/10.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.controllers.mainWindowController" prefWidth="1000">
+
     <children>
         <MenuBar>
             <menus>
@@ -29,7 +30,7 @@
                 </Menu>
             </menus>
         </MenuBar>
-        <TabPane tabClosingPolicy="SELECTED_TAB" fx:id="tabPane">
+        <TabPane tabClosingPolicy="SELECTED_TAB" fx:id="tabPane" VBox.vgrow="ALWAYS">
             <Tab closable="true" text="Welcome!">
                 <fx:include source="welcomeTab.fxml"/>
             </Tab>

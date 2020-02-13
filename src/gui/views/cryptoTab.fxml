@@ -8,9 +8,9 @@
 <AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.controllers.Controller">
     <children>
             <HBox AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0">
-                <AnchorPane prefHeight="700.0" prefWidth="200.0" styleClass="leftSideSettings">
+                <AnchorPane  prefWidth="200.0" styleClass="leftSideSettings">
                     <children>
-                        <VBox layoutX="13.0" layoutY="13.0" prefHeight="306.0" prefWidth="174.0">
+                        <VBox layoutX="13.0" layoutY="13.0"  prefWidth="174.0">
                             <children>
                                 <ComboBox fx:id="intervalCombobox" onAction="#onIntervalChange" prefHeight="26.0" prefWidth="184.0" promptText="SET TIME INTERVAL" styleClass="leftTextField" />
                                 <ComboBox fx:id="selectedData" onAction="#onDataTypeChange" prefHeight="26.0" prefWidth="184.0" promptText="DATA TYPE" styleClass="leftTextField" />
@@ -31,7 +31,7 @@
                                 </HBox>
                                 <Button mnemonicParsing="false" onAction="#addTicker" prefHeight="26.0" prefWidth="190.0" text="ADD TO LIST" />
                                 <Button mnemonicParsing="false" onAction="#deleteTicker" prefHeight="26.0" prefWidth="274.0" text="REMOVE FROM LIST" />
-                                <TableView fx:id="tickerTable" prefHeight="700.0" prefWidth="174.0">
+                                <TableView fx:id="tickerTable" minHeight="277.0" prefWidth="174.0">
                                     <columns>
                                         <TableColumn fx:id="symbolColumn" minWidth="0.0" prefWidth="60" text="SYMBOL" />
                                         <TableColumn fx:id="priceColumn" minWidth="0.0" prefWidth="113" text="COMPANY NAME" />
@@ -41,10 +41,10 @@
                         </VBox>
                     </children>
                 </AnchorPane>
-                <AnchorPane prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS">
+                <AnchorPane prefWidth="200.0" HBox.hgrow="ALWAYS">
                     <children>
                         <SplitPane orientation="VERTICAL" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0">
-                        <LineChartWithMarkers  fx:id="lineChart" createSymbols="false" layoutX="14.0" prefHeight="800" prefWidth="296.0" styleClass="lineChart" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="20" AnchorPane.topAnchor="0.0">
+                        <LineChartWithMarkers  fx:id="lineChart" createSymbols="false" layoutX="14.0" prefWidth="296.0" styleClass="lineChart" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="20" AnchorPane.topAnchor="0.0">
                             <xAxis>
                                 <NumberAxis label="Date" minorTickVisible="false" side="BOTTOM" fx:id="xAxis" />
                             </xAxis>

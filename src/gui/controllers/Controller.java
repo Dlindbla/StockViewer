@@ -62,7 +62,6 @@ public class Controller implements Initializable {
         testTab.setContent(pane);
     }
 
-
     //Searchbox press enter function
     @FXML
     public void onEnter(){

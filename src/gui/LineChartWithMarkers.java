@@ -14,10 +14,12 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import utils.PearsonCorrelation;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Stack;
 
 /*
 * THIS CLASS WAS COPIED FROM : https://stackoverflow.com/questions/28952133/how-to-add-two-vertical-lines-with-javafx-linechart
@@ -32,7 +34,6 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
     public ObservableList<Data<X, Y>> verticalZoomMarkers;
     public ObservableList<Data <X, X>> rectangleMarkers;
     public ObservableList<Data<X, Y>> stackPanes;
-
     public ObservableList<Data<X, Y>> dateLabels;
 
 
@@ -57,8 +58,8 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
         dateLabels = FXCollections.observableArrayList(data -> new Observable[] {data.XValueProperty()});
         dateLabels.addListener((InvalidationListener) observable -> layoutPlotChildren());
 
-
     }
+
 
     public void addHorizontalValueMarker(Data<X, Y> marker) {
         Objects.requireNonNull(marker, "the marker must not be null");
