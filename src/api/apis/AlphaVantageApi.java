@@ -26,8 +26,8 @@ import utils.PlottableObject;
 
 public class AlphaVantageApi extends ApiCache implements Api {
   private final List<String> intervals = Arrays.asList("15min", "5min", "1min", "Monthly", "Weekly", "Daily");
-  private final List<String> intradayDataTypes = Arrays.asList("Open", "High", "Low", "Close", "Volume");
-  private final List<String> adjustedDataTypes = Arrays.asList("Open", "High", "Low", "Close", "Volume",
+  private final List<String> intradayDataTypes = Arrays.asList("Close", "Open", "High", "Low", "Volume");
+  private final List<String> adjustedDataTypes = Arrays.asList("Close", "Open", "High", "Low", "Volume",
       "Adjusted close", "Dividend amount");
 
   private final Map<String, List<String>> dataTypes = Map.of(

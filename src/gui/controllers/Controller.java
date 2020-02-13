@@ -57,25 +57,21 @@ public class Controller implements Initializable {
     Button testButton;
 
     public void addToTestTab() throws IOException {
-        Pane pane  = FXMLLoader.load(getClass().getResource("views/cryptoTab.fxml"));
+        Pane pane = FXMLLoader.load(getClass().getResource("views/cryptoTab.fxml"));
         pane.getStylesheets().add(getClass().getResource("AppStyle.css").toString());
         testTab.setContent(pane);
     }
 
-    //Searchbox press enter function
+    // Searchbox press enter function
     @FXML
-    public void onEnter(){
+    public void onEnter() {
         threadedSearchFunction();
     }
 
     // When interval is changed
     public void onIntervalChange() {
         var interval = intervalCombobox.getSelectionModel().getSelectedItem();
-        if (interval.equals("Monthly") || interval.equals("Weekly") || interval.equals("Daily")) {
-            selectedData.getItems().setAll("Open", "High", "Low", "Close", "Volume", "Adjusted close");
-        } else {
-            selectedData.getItems().setAll("Open", "High", "Low", "Close", "Volume");
-        }
+        selectedData.getItems().setAll(alphaVantage.getInfo().dataTypes.get(interval));
 
         graphDrawer.restart();
     }
@@ -92,13 +88,13 @@ public class Controller implements Initializable {
     private GraphDrawer graphDrawer = new GraphDrawer();
     private SearchFunction searchFunction = new SearchFunction();
 
-    String currentDrawnInterval = "15min";
+    String currentDrawnInterval = alphaVantage.getInfo().intervals.get(0);
 
     public void threadedSearchFunction() {
         searchFunction.restart();
     }
 
-    public void fillLineChart(ArrayList<XYChart.Series<Number, Number>> series){
+    public void fillLineChart(ArrayList<XYChart.Series<Number, Number>> series) {
         lineChart.fillLineChart(series);
     }
 
@@ -127,17 +123,6 @@ public class Controller implements Initializable {
         }
     }
 
-    //TODO: REPLACE THIS SO THAT THE STOCKDATA DOESNT NEED A KEY AND INSTEAD PEEKS INTO THE KEYSETS DATA TO FIND THE RIGHT KEY
-    public String getTimeSerie() {
-        String intervalboxString = intervalCombobox.getSelectionModel().getSelectedItem();
-        if (intervalboxString == null) {
-            intervalboxString = "15min";
-        }
-        ArrayList<String> series = new ArrayList<>(List.of("15min", "5min", "1min", "Monthly", "Weekly", "Daily"));
-        ArrayList<String> timeSeries = new ArrayList<>(List.of("TIME_SERIES_INTRADAY", "TIME_SERIES_INTRADAY", "TIME_SERIES_INTRADAY", "TIME_SERIES_MONTHLY_ADJUSTED", "TIME_SERIES_WEEKLY_ADJUSTED", "TIME_SERIES_DAILY_ADJUSTED"));
-        return timeSeries.get(series.indexOf(intervalboxString));
-    }
-
     public String getDataType() {
         var selectedDataType = selectedData.getSelectionModel().getSelectedItem();
         if (selectedDataType == null) {
@@ -154,19 +139,20 @@ public class Controller implements Initializable {
         symbolColumn.setCellValueFactory(new PropertyValueFactory<>("symbol"));
         priceColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
 
-        intervalCombobox.getItems().addAll("15min", "5min", "1min", "Monthly", "Weekly", "Daily");
+        intervalCombobox.getItems().addAll(alphaVantage.getInfo().intervals);
         yAxis.setForceZeroInRange(false);
         lineChartMouseController.setMouseController(lineChart, xAxis, yAxis, gen);
         xAxis.setTickLabelFormatter(new StringConverter<>() {
             @Override
             public String toString(Number number) {
-                //Check if the alldates has been generated
-                //iterate over all the Dates and assign them
+                // Check if the alldates has been generated
+                // iterate over all the Dates and assign them
                 if (!gen.getxIndexList().isEmpty() && number.intValue() < gen.getxIndexList().size()) {
                     return gen.getxIndexList().get(number.intValue()).toString();
                 }
                 return null;
             }
+
             @Override
             public Number fromString(String s) {
                 return null;
@@ -174,21 +160,21 @@ public class Controller implements Initializable {
         });
     }
 
-    private class GraphDrawer extends Service<ArrayList<XYChart.Series<Number,Number>>> {
+    private class GraphDrawer extends Service<ArrayList<XYChart.Series<Number, Number>>> {
         @Override
-        protected Task<ArrayList<XYChart.Series<Number,Number>>> createTask() {
+        protected Task<ArrayList<XYChart.Series<Number, Number>>> createTask() {
             return new Task<>() {
                 @Override
                 protected ArrayList<XYChart.Series<Number, Number>> call() throws Exception {
                     if (!tickerTable.getItems().isEmpty()) {
-                        //if user doesn't set an interval time default to 15min
+                        // if user doesn't set an interval time default to 15min
 
                         String interval = intervalCombobox.getSelectionModel().getSelectedItem();
                         if (interval == null) {
-                            interval = "15min";
+                            interval = alphaVantage.getInfo().intervals.get(0);
                         }
 
-                        //check if the timeInterval has been changed and update it
+                        // check if the timeInterval has been changed and update it
                         if (!(currentDrawnInterval.equals(interval))) {
                             currentDrawnInterval = interval;
                             queueLineChartClear();
@@ -239,11 +225,13 @@ public class Controller implements Initializable {
                         return null;
                     }
                 }
+
                 @Override
                 protected void succeeded() {
                     leftComboBox.getItems().clear(); // clear the previous items from the box
-                    leftComboBox.getItems().addAll(getValue()); //add the new once received from the task
+                    leftComboBox.getItems().addAll(getValue()); // add the new once received from the task
                 }
+
                 @Override
                 protected void failed() {
                     System.out.printf("failed to search: %s\n", getException().getMessage());
