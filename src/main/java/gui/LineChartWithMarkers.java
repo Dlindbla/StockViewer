@@ -9,13 +9,16 @@ import javafx.geometry.Insets;
 import javafx.scene.chart.Axis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
-import javafx.scene.layout.*;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import utils.PearsonCorrelation;
+
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -32,7 +35,6 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
     public ObservableList<Data<X, Y>> verticalZoomMarkers;
     public ObservableList<Data <X, X>> rectangleMarkers;
     public ObservableList<Data<X, Y>> stackPanes;
-
     public ObservableList<Data<X, Y>> dateLabels;
 
 
@@ -57,8 +59,8 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
         dateLabels = FXCollections.observableArrayList(data -> new Observable[] {data.XValueProperty()});
         dateLabels.addListener((InvalidationListener) observable -> layoutPlotChildren());
 
-
     }
+
 
     public void addHorizontalValueMarker(Data<X, Y> marker) {
         Objects.requireNonNull(marker, "the marker must not be null");
@@ -219,7 +221,7 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
 
 
     //Returns only the LineCharts XYCHART.SERIES objects and not MARKERS
-    public ObservableList<XYChart.Series> getSeries(){
+    public ObservableList<Series> getSeries(){
         return super.getData();
     }
 
@@ -304,7 +306,7 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
     // TODO : CHANGE THIS TO TAKE A SERIES AS PARAMETER?
     public boolean containsSeries(String searchString){
         //checks if the linechart currently contains a series with the same name as searchString
-        for(XYChart.Series series : this.getSeries()){
+        for(Series series : this.getSeries()){
             if(series.getName() == searchString) return true;
         }
         return false;
@@ -348,7 +350,7 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
     }
 
     public void fillLineChart(ArrayList<Series<Number, Number>> series) {
-        for (XYChart.Series item : series) {
+        for (Series item : series) {
             if(!this.containsSeries(item.getName())){
                 this.getData().add(item);
                 item.getNode().setMouseTransparent(true);
@@ -360,9 +362,9 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
 
     //A method that creates all PearssonsCorrelation valeus for all combinations of series in the linechart
     public void createPearssonsCorrelations(){
-        ObservableList<XYChart.Series> list = this.getSeries();
-        for(XYChart.Series item : list){
-            for(XYChart.Series item2 : list) {
+        ObservableList<Series> list = this.getSeries();
+        for(Series item : list){
+            for(Series item2 : list) {
                 if (!(item.getName() == item2.getName())) {
                     PearsonCorrelation corr = new PearsonCorrelation();
                     double pcorrelation = corr.calculateCorrelation(item,item2);
