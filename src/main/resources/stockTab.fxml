@@ -43,7 +43,7 @@
             </AnchorPane>
             <AnchorPane prefWidth="200.0" HBox.hgrow="ALWAYS">
                 <children>
-                    <SplitPane orientation="VERTICAL" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0">
+                    <SplitPane orientation="VERTICAL" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0" dividerPositions="1">
                         <LineChartWithMarkers  fx:id="lineChart" createSymbols="false" layoutX="14.0" prefWidth="296.0" styleClass="lineChart" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="20" AnchorPane.topAnchor="0.0">
                             <xAxis>
                                 <NumberAxis label="Date" minorTickVisible="false" side="BOTTOM" fx:id="xAxis" />
@@ -52,7 +52,7 @@
                                 <NumberAxis fx:id="yAxis" label="Price" side="LEFT"/>
                             </yAxis>
                         </LineChartWithMarkers>
-                        <AnchorPane>
+                        <AnchorPane prefHeight="0">
 
                         </AnchorPane>
                     </SplitPane>

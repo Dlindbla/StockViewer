@@ -5,6 +5,7 @@ import javafx.scene.Node;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.input.MouseButton;
+import javafx.util.Pair;
 import utils.GraphGenerator;
 
 public class LineChartMouseController {
@@ -110,7 +111,9 @@ public class LineChartMouseController {
 
                     // Find the corrsponding old stock value for each new value if applicable
                     for (var oldValue : gen.hashMap.get(startValue)) {
-                        if ((String) oldValue.getExtraValue() == (String) newValue.getExtraValue()) {
+                        var oldName = (Pair) oldValue.getExtraValue();
+                        var newName = (Pair) newValue.getExtraValue();
+                        if(oldName.getKey().equals(newName.getKey())){
                             priceLabelCount++;
 
                             // Calculate the difference in price and set a boolean depending on value

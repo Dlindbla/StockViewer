@@ -34,9 +34,11 @@
             <Tab closable="true" text="Welcome!">
                 <fx:include source="welcomeTab.fxml"/>
             </Tab>
+            <!--
         <Tab text="Crypto Currency" fx:id="testTab" closable="false" >
                 <fx:include source="cryptoTab.fxml"/>
         </Tab>
+            -->
         <Tab text="Stock Investment" closable="false">
                 <fx:include source="stockTab.fxml"/>
         </Tab>
