@@ -1,20 +1,122 @@
 package gui.controllers;
 
 import gui.LineChartWithMarkers;
+import javafx.beans.InvalidationListener;
+import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.input.MouseButton;
+import javafx.scene.text.Text;
+import javafx.scene.control.TextField;
 import javafx.util.Pair;
 import utils.GraphGenerator;
+
+import java.awt.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 
 public class LineChartMouseController {
     // Start value for zoom
     Integer startValue;
+    TextField startDateField;
+    TextField stopDateField;
+    NumberAxis xAxis;
+    NumberAxis yAxis;
+    LineChartWithMarkers lineChart;
+    GraphGenerator gen;
 
-    public void setMouseController(LineChartWithMarkers lineChart, NumberAxis xAxis, NumberAxis yAxis,
-                                   GraphGenerator gen) {
+    public LineChartMouseController(LineChartWithMarkers lineChart, NumberAxis xAxis, NumberAxis yAxis,
+                                    GraphGenerator gen, TextField startDateField, TextField stopDateField){
+
+        this.startDateField = startDateField;
+        this.stopDateField = stopDateField;
+        this.xAxis = xAxis;
+        this.yAxis = yAxis;
+        this.lineChart = lineChart;
+        this.gen = gen;
+    }
+
+    public void updateTextField(){
+        //get a DD/MM/YYYY string of the current upper and lower bound
+    }
+
+
+    public int zoomInWithString() throws ParseException {
+        Date firstDate = convertStringtoDate(startDateField.getText());
+        Date secondDate = convertStringtoDate(stopDateField.getText());
+
+        //ZoomInCords assign both values to be the index of the first item
+        Integer firstZoom = 0;
+        Integer secondZoom = 0;
+
+
+        //get all dates from linechart using the graphgenerators xIndexList which contains a bunch of compareables
+        ArrayList<Comparable> allDates = gen.getxIndexList();
+
+        //find the right indexes - Iterate over the list- an find the right indexes
+        //order will not matter in this case and can be input in which ever order
+
+
+        for(Comparable item: allDates){
+            //if the date item is greater than the current item being iterated over take it or the previous item as
+            //the first zoom coordinate. Else continue
+            if(item.compareTo(firstDate)>=0){
+                //set as a zoom cord
+               firstZoom = allDates.indexOf(item);
+            }
+        }
+        //same for second zoom cord
+        for(Comparable item: allDates){
+            if(item.compareTo(secondDate)>=0){
+                //set as a zoom cord
+                secondZoom = allDates.indexOf(item);
+            }
+        }
+
+        //check if both cord correspond to either the first or last item, i.e. The range is invalid
+        if(secondZoom == firstZoom && (firstZoom == allDates.get(0) || firstZoom == allDates.get(allDates.size()-1))){
+            return 1;
+        }
+
+
+        //call the normal zoomIn function
+        if(secondZoom > firstZoom){
+            lineChart.zoomIn(firstZoom,secondZoom);
+        }else{
+            lineChart.zoomIn(secondZoom,firstZoom);
+        }
+
+        return 0;
+    }
+
+
+
+
+
+
+    public Date convertStringtoDate(String string) throws ParseException {
+        SimpleDateFormat formatter1=new SimpleDateFormat("dd/MM/yyyy");
+        Date newDate = formatter1.parse(string);
+        return newDate;
+    }
+
+
+
+
+
+
+
+
+
+    public void setMouseController() {
         final Node chartBackground = lineChart.lookup(".chart-plot-background");
+
+        startDateField.setPromptText("dd/MM/yyyy");
+        stopDateField.setPromptText("dd/MM/yyyy");
+
 
         // Get the amount of values on the xAxis
         // if the amount is over a certain limit, employ a range to check if the values

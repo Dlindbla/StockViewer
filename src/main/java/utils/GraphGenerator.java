@@ -10,7 +10,7 @@ import java.util.List;
 
 public class GraphGenerator {
     private ArrayList<XYChart.Series<Number, Number>> chartSeries = new ArrayList<>();
-    private ArrayList<Comparable> xIndexList = new ArrayList<>();
+    public ArrayList<Comparable> xIndexList = new ArrayList<>();
 
     public HashMap<Integer, List<XYChart.Data<Number, Number>>> hashMap = new HashMap<>();
 
@@ -65,6 +65,8 @@ public class GraphGenerator {
         }
         return series;
     }
+
+
 
     public void reset() {
         xIndexList.clear();

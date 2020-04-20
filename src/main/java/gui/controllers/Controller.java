@@ -21,7 +21,10 @@ import utils.GraphGenerator;
 import utils.PlottableObject;
 import java.io.IOException;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.ResourceBundle;
 
 public class Controller implements Initializable {
@@ -55,6 +58,61 @@ public class Controller implements Initializable {
     Pane testTabPane;
     @FXML
     Button testButton;
+    @FXML
+    TextField dateTextFieldOne;
+    @FXML
+    TextField dateTextFieldTwo;
+    @FXML
+    Button zoomInButton;
+
+    @FXML
+    public void zoomInWithString() throws ParseException {
+        String firstString = dateTextFieldOne.getText();
+        String secondString = dateTextFieldTwo.getText();
+
+
+        //convert strings from datefields into date objects to be used to compare against the data in the linechart
+        SimpleDateFormat formatter1 = new SimpleDateFormat("dd/MM/yyyy");
+
+        Date firstDate = formatter1.parse(firstString);
+        Date secondDate = formatter1.parse(secondString);
+
+        //ZoomInCords assign both values to be the index of the first item
+        Integer firstZoom = 0;
+        Integer secondZoom = 0;
+
+        ArrayList<Comparable> allDates = gen.getxIndexList();
+
+        //find the right indexes - Iterate over the list- an find the right indexes
+        //order will not matter in this case and can be input in which ever order
+        for (Comparable item : allDates) {
+            //if the date item is greater than the current item being iterated over take it or the previous item as
+            //the first zoom coordinate. Else continue
+            if (item.compareTo(firstDate) <= 0) {
+                //set as a zoom cord
+                firstZoom = allDates.indexOf(item);
+            }
+        }
+        //same for second zoom cord
+        for (Comparable item : allDates) {
+            if (item.compareTo(secondDate) <= 0) {
+                //set as a zoom cord
+                secondZoom = allDates.indexOf(item);
+            }
+        }
+        //check if both cord correspond to either the first or last item, i.e. The range is invalid
+        if(secondZoom == firstZoom && (firstZoom == allDates.get(0) || firstZoom == allDates.get(allDates.size()-1))){
+            //go crazy
+            System.out.print("Invalid range for dates");
+        }
+
+        //call the normal zoomIn function
+        if(secondZoom > firstZoom){
+            lineChart.zoomIn(firstZoom,secondZoom);
+        }else{
+            lineChart.zoomIn(secondZoom,firstZoom);
+        }
+    }
 
     public void addToTestTab() throws IOException {
         Pane pane = FXMLLoader.load(getClass().getResource("views/cryptoTab.fxml"));
@@ -81,7 +139,7 @@ public class Controller implements Initializable {
     // Initialize stock data sources
     AlphaVantageApi alphaVantage = new AlphaVantageApi();
 
-    LineChartMouseController lineChartMouseController = new LineChartMouseController();
+
     GraphGenerator gen = new GraphGenerator();
     private GraphDrawer graphDrawer = new GraphDrawer();
     private SearchFunction searchFunction = new SearchFunction();
@@ -100,6 +158,7 @@ public class Controller implements Initializable {
         Platform.runLater(() -> lineChart.getData().clear());
         gen.reset();
     }
+
 
     public void deleteTicker() {
         var objectToRemove = tickerTable.getSelectionModel().getSelectedItem();
@@ -150,7 +209,8 @@ public class Controller implements Initializable {
         dataTypeCombobox.getItems().addAll(alphaVantage.getInfo().dataTypes.get(getInterval()));
 
         yAxis.setForceZeroInRange(false);
-        lineChartMouseController.setMouseController(lineChart, xAxis, yAxis, gen);
+        LineChartMouseController lineChartMouseController = new LineChartMouseController(lineChart, xAxis, yAxis, gen, dateTextFieldOne,dateTextFieldTwo);
+        lineChartMouseController.setMouseController();
         xAxis.setTickLabelFormatter(new StringConverter<>() {
             @Override
             public String toString(Number number) {
@@ -168,6 +228,7 @@ public class Controller implements Initializable {
             }
         });
     }
+
 
     private class GraphDrawer extends Service<ArrayList<XYChart.Series<Number, Number>>> {
         @Override

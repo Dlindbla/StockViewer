@@ -37,6 +37,10 @@
                                     <TableColumn fx:id="priceColumn" minWidth="0.0" prefWidth="113" text="COMPANY NAME" />
                                 </columns>
                             </TableView>
+                            <TextField fx:id="dateTextFieldOne" promptText="Start Date"></TextField>
+                            <TextField fx:id="dateTextFieldTwo"  promptText="Stop Date"></TextField>
+                            <Button fx:id="zoomInButton" onAction="#zoomInWithString" text="MANUAL ZOOM"></Button>
+
                         </children>
                     </VBox>
                 </children>

@@ -340,6 +340,7 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
         }
     }
 
+
     //Clears everything from the linechart
     public void fullClear(){
         this.removeAllStackPanes();
@@ -361,18 +362,22 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
 
 
     //A method that creates all PearssonsCorrelation valeus for all combinations of series in the linechart
-    public void createPearssonsCorrelations(){
+        public ArrayList<String> createPearssonsCorrelations(){
         ObservableList<Series> list = this.getSeries();
+        ArrayList<String> strings = new ArrayList<>();
         for(Series item : list){
             for(Series item2 : list) {
                 if (!(item.getName() == item2.getName())) {
                     PearsonCorrelation corr = new PearsonCorrelation();
                     double pcorrelation = corr.calculateCorrelation(item,item2);
+                    String tempString = String.format("Pearson value between %s : %s = %s",item.getName(),
+                            item2.getName(), pcorrelation);
+                    strings.add(tempString);
                 }
             }
         }
         //iterate over everything again and exclude correlations of the same series
-
+        return strings;
     }
 
 
