@@ -40,7 +40,7 @@
                             <TextField fx:id="dateTextFieldOne" promptText="Start Date"></TextField>
                             <TextField fx:id="dateTextFieldTwo"  promptText="Stop Date"></TextField>
                             <Button fx:id="zoomInButton" onAction="#zoomInWithString" text="MANUAL ZOOM"></Button>
-
+                            <TextField fx:id="apiKeyTextField" promptText="API key"></TextField>
                         </children>
                     </VBox>
                 </children>

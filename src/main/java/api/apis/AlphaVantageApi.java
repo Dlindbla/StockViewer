@@ -22,10 +22,10 @@ import api.ApiCache;
 import api.ApiException;
 import api.ApiInfo;
 import api.ApiSearchResult;
+import utils.IniSettings;
 import utils.PlottableObject;
 
 public class AlphaVantageApi extends ApiCache implements Api {
-  private final List<String> intervals = Arrays.asList("15min", "5min", "1min", "Monthly", "Weekly", "Daily");
   private final List<String> intradayDataTypes = Arrays.asList("Close", "Open", "High", "Low", "Volume");
   private final List<String> adjustedDataTypes = Arrays.asList("Close", "Open", "High", "Low", "Volume",
           "Adjusted close", "Dividend amount");
@@ -38,6 +38,8 @@ public class AlphaVantageApi extends ApiCache implements Api {
           "Weekly", adjustedDataTypes,
           "Daily", adjustedDataTypes
   );
+
+  // API mappings
   private final Map<String, String> timeSeries = Map.of(
           "15min", "TIME_SERIES_INTRADAY",
           "5min", "TIME_SERIES_INTRADAY",
@@ -59,7 +61,9 @@ public class AlphaVantageApi extends ApiCache implements Api {
   private final String[] dateFormats = new String[] { "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd" };
 
   public ApiInfo getInfo() {
-    return new ApiInfo("Alpha Vantage", intervals, dataTypes);
+    var iniIntervals = IniSettings.getArray("TIME_INTERVAL");
+
+    return new ApiInfo("Alpha Vantage", Arrays.asList(iniIntervals), dataTypes);
   }
 
   public ArrayList<ApiSearchResult> search(String keyword) throws ApiException {
@@ -102,7 +106,7 @@ public class AlphaVantageApi extends ApiCache implements Api {
     params.put("function", timeSeries.get(interval));
     params.put("symbol", symbol);
     params.put("interval", interval);
-    params.put("outputsize", "full");
+    params.put("outputsize", IniSettings.get("OUTPUT_SIZE"));
 
     // Check cache
     var cacheKey = symbol + interval + dataType;
@@ -185,7 +189,7 @@ public class AlphaVantageApi extends ApiCache implements Api {
 
   private JSONObject makeQueryRequest(HashMap<String, String> params) throws IOException, ParseException, ApiException {
     // Set api key
-    params.put("apikey", Double.toString(Math.random()));
+    params.put("apikey", IniSettings.get("API_KEY"));
 
     // Build url
     var baseUrl = "https://www.alphavantage.co/query";

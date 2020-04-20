@@ -4,15 +4,31 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import utils.IniSettings;
 
 import java.io.IOException;
 
 public class Main extends Application {
-
     public static void main(String[] args) {
+        // Load ini file
+        try {
+            IniSettings.read("StockViewer.ini");
+        }
+        catch (IOException ex) {
+            System.out.println("Failed to read ini-file: " + ex.toString());
+        }
+
+        // Launch application
         launch(args);
+        
+        // Write ini file to preserve changes
+        try {
+            IniSettings.write("StockViewer.ini");
+        }
+        catch (IOException ex) {
+            System.out.println("Failed to write ini-file: " + ex.toString());
+        }
     }
     //Alla moment som tillhör uppgiften är lösta
     public void start(Stage FirstStage) throws IOException{

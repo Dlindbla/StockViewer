@@ -18,6 +18,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.Pane;
 import javafx.util.StringConverter;
 import utils.GraphGenerator;
+import utils.IniSettings;
 import utils.PlottableObject;
 import java.io.IOException;
 import java.net.URL;
@@ -64,6 +65,8 @@ public class Controller implements Initializable {
     TextField dateTextFieldTwo;
     @FXML
     Button zoomInButton;
+    @FXML
+    TextField apiKeyTextField;
 
     @FXML
     public void zoomInWithString() throws ParseException {
@@ -226,6 +229,11 @@ public class Controller implements Initializable {
             public Number fromString(String s) {
                 return null;
             }
+        });
+
+        apiKeyTextField.setText(IniSettings.get("API_KEY"));
+        apiKeyTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+            IniSettings.set("API_KEY", newValue);
         });
     }
 
