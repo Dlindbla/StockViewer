@@ -41,6 +41,7 @@
                             <TextField fx:id="dateTextFieldTwo"  promptText="Stop Date"></TextField>
                             <Button fx:id="zoomInButton" onAction="#zoomInWithString" text="MANUAL ZOOM"></Button>
                             <TextField fx:id="apiKeyTextField" promptText="API key"></TextField>
+                            <Button fx:id="calculatePearson" onAction="#calculatePearsonValues" text="Pearsons Correlation"></Button>
                         </children>
                     </VBox>
                 </children>
@@ -57,6 +58,8 @@
                             </yAxis>
                         </LineChartWithMarkers>
                         <AnchorPane prefHeight="0">
+                            <TextArea AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0"
+                                       AnchorPane.topAnchor="0" text="Test" fx:id="pearsonsTextField"></TextArea>
 
                         </AnchorPane>
                     </SplitPane>

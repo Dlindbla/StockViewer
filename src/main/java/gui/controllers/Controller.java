@@ -67,12 +67,22 @@ public class Controller implements Initializable {
     Button zoomInButton;
     @FXML
     TextField apiKeyTextField;
+    @FXML
+    Button calculatePearson;
+    @FXML
+    TextArea pearsonsTextField;
+
+
+    @FXML
+    public void calculatePearsonValues(){
+        pearsonsTextField.setText(lineChart.createPearssonsCorrelations());
+    }
+
 
     @FXML
     public void zoomInWithString() throws ParseException {
         String firstString = dateTextFieldOne.getText();
         String secondString = dateTextFieldTwo.getText();
-
 
         //convert strings from datefields into date objects to be used to compare against the data in the linechart
         SimpleDateFormat formatter1 = new SimpleDateFormat("dd/MM/yyyy");

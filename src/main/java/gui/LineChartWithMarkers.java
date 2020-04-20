@@ -362,22 +362,26 @@ public class LineChartWithMarkers<X,Y> extends LineChart {
 
 
     //A method that creates all PearssonsCorrelation valeus for all combinations of series in the linechart
-        public ArrayList<String> createPearssonsCorrelations(){
-        ObservableList<Series> list = this.getSeries();
-        ArrayList<String> strings = new ArrayList<>();
+        public String createPearssonsCorrelations(){
+        ObservableList<Series> list = getSeries();
+        String resultString = new String();
+
+        if(list.isEmpty()) return "There are no items in the linechart!";
+        if(list.size()==1) return "There needs to be more than one item in order to calculate correlation!";
+
         for(Series item : list){
             for(Series item2 : list) {
                 if (!(item.getName() == item2.getName())) {
                     PearsonCorrelation corr = new PearsonCorrelation();
                     double pcorrelation = corr.calculateCorrelation(item,item2);
-                    String tempString = String.format("Pearson value between %s : %s = %s",item.getName(),
+                    String tempString = String.format("Pearson value between %s : %s = %s \n",item.getName(),
                             item2.getName(), pcorrelation);
-                    strings.add(tempString);
+                    resultString += tempString;
                 }
             }
         }
         //iterate over everything again and exclude correlations of the same series
-        return strings;
+        return resultString;
     }
 
 
