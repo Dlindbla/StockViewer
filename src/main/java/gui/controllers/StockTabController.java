@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.ResourceBundle;
 
-public class Controller implements Initializable {
+public class StockTabController implements Initializable {
     @FXML
     Button searchButton;
     @FXML
@@ -55,10 +55,6 @@ public class Controller implements Initializable {
     ComboBox<String> dataTypeCombobox;
     @FXML
     Tab testTab;
-    @FXML
-    Pane testTabPane;
-    @FXML
-    Button testButton;
     @FXML
     TextField dateTextFieldOne;
     @FXML
@@ -128,7 +124,7 @@ public class Controller implements Initializable {
     }
 
     public void addToTestTab() throws IOException {
-        Pane pane = FXMLLoader.load(getClass().getResource("views/cryptoTab.fxml"));
+        Pane pane = FXMLLoader.load(getClass().getResource("views/CryptoTab.fxml"));
         pane.getStylesheets().add(getClass().getResource("AppStyle.css").toString());
         testTab.setContent(pane);
     }
@@ -220,6 +216,8 @@ public class Controller implements Initializable {
         // Populate interval and datatype selection boxes
         intervalCombobox.getItems().addAll(alphaVantage.getInfo().intervals);
         dataTypeCombobox.getItems().addAll(alphaVantage.getInfo().dataTypes.get(getInterval()));
+
+
 
         yAxis.setForceZeroInRange(false);
         LineChartMouseController lineChartMouseController = new LineChartMouseController(lineChart, xAxis, yAxis, gen, dateTextFieldOne,dateTextFieldTwo);

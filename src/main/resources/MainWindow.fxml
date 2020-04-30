@@ -8,7 +8,7 @@
 <?import javafx.scene.control.Tab?>
 
 
-<VBox xmlns="http://javafx.com/javafx/10.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.controllers.mainWindowController" prefWidth="1000">
+<VBox xmlns="http://javafx.com/javafx/10.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.controllers.MainWindowController" prefWidth="1000">
 
     <children>
         <MenuBar>
@@ -32,15 +32,19 @@
         </MenuBar>
         <TabPane tabClosingPolicy="SELECTED_TAB" fx:id="tabPane" VBox.vgrow="ALWAYS">
             <Tab closable="true" text="Welcome!">
-                <fx:include source="welcomeTab.fxml"/>
+                <fx:include source="WelcomeTab.fxml"/>
             </Tab>
             <!--
         <Tab text="Crypto Currency" fx:id="testTab" closable="false" >
-                <fx:include source="cryptoTab.fxml"/>
+                <fx:include source="CryptoTab.fxml"/>
         </Tab>
             -->
-        <Tab text="Stock Investment" closable="false">
-                <fx:include source="stockTab.fxml"/>
+        <Tab text="Stock Analysis" closable="false">
+                <fx:include fx:id="stockTab" source="StockTab.fxml"/>
+        </Tab>
+
+        <Tab text="Trading" closable="false">
+                <fx:include fx:id="tradingTab" source="TradingTab.fxml" />
         </Tab>
         </TabPane>
     </children>
