@@ -23,17 +23,18 @@ public class Portfolio implements Serializable {
         liquidity = liquidity - (buyPrice * quantity);
     }
 
-    public void sellPosition(String uniqueID, double sellPrice){
-        for(var item : longPositions){
-            if(item.getUniqueID() == uniqueID){
-                double profit = item.sell(sellPrice);
-                liquidity = liquidity + profit;
-                longPositions.remove(item);
-                return;
-            }
-        }
-    }
+    public void sellPosition(LongPosition position, double sellPrice){
 
+        double profit = position.sell(sellPrice);
+        liquidity = liquidity + profit;
+        longPositions.remove(position);
+        return;
+
+        }
 
 
 }
+
+
+
+

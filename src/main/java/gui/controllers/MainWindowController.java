@@ -43,7 +43,7 @@ public class MainWindowController {
     @FXML
     private void initialize() {
         //inject this main controller into the trading controller so that it may call this controller to get the API
-        //From the controller
+        //From the stockTabController
         tradingTabController.injectAPIcache(getApi());
     }
 }

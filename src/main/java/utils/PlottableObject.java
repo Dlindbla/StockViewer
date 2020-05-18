@@ -3,6 +3,8 @@ package utils;
 import javafx.util.Pair;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 
 public class PlottableObject {
@@ -26,5 +28,10 @@ public class PlottableObject {
 
     public ArrayList<Pair<Date, Number>> getItems() {
         return items;
+    }
+
+    //intellij told me to do it
+    public void sortItems(){
+        Collections.sort(items, Comparator.comparing(Pair::getKey));
     }
 }

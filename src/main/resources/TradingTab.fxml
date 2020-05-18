@@ -1,29 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Button?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.controllers.TradingTabController">
+<AnchorPane xmlns="http://javafx.com/javafx/10.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.controllers.TradingTabController">
    <children>
-      <HBox
-            AnchorPane.bottomAnchor="0"
-            AnchorPane.leftAnchor="0"
-            AnchorPane.rightAnchor="0"
-            AnchorPane.topAnchor="0">
-
+      <HBox AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0"
+        layoutY="10">
          <children>
-            <AnchorPane prefWidth="800" HBox.hgrow="ALWAYS" />
+            <AnchorPane prefWidth="200" HBox.hgrow="ALWAYS">
+               <children>
+                  <VBox  layoutX="10" layoutY="10">
+                      <ComboBox fx:id="portfolioComboBox" layoutX="14.0" layoutY="14.0" prefWidth="150.0" promptText="Select Portfolio"  />
+                      <Button fx:id="updateButton" prefWidth="150.0" text="Update Portfolio"/>
+                      <TextField fx:id="leftTextField"  prefHeight="26.0" prefWidth="150.0" promptText="SEARCH"/>
+                      <Button fx:id="searchButton" onAction="#search" text="SEARCH" prefWidth="150.0"/>
+                      <ComboBox fx:id="tradingComboBox" layoutX="14.0" layoutY="14.0" prefWidth="150.0" promptText="Results" />
+                      <TextField fx:id="quantityField" prefWidth="150.0" promptText="Quantity"/>
+                      <TextField fx:id="buyDateField" prefWidth="150.0" promptText="Buy Date"/>
+                      <TextField fx:id="PriceField" prefWidth="150.0" promptText="Price" editable="false"/>
+                      <Button fx:id="buyButton" prefWidth="150.0" text="BUY"/>
+                   </VBox>
+               </children>
+            </AnchorPane>
             <TableView fx:id="positionsTable" AnchorPane.rightAnchor="0" >
               <columns>
-                <TableColumn prefWidth="100.0" fx:id="TickerColumn" text="Ticker" />
-                <TableColumn prefWidth="100.0" fx:id="BuyDateColumn" text="BuyDate" />
-                <TableColumn prefWidth="100.0" fx:id="BuyPriceColumn" text="BuyPrice" />
-                <TableColumn prefWidth="100.0" fx:id="currentPriceColumn" text="CurrentPrice" />
-                <TableColumn prefWidth="100.0" fx:id="PriceDeltaColumn" text="PriceDelta" />
-                <TableColumn prefWidth="100.0" fx:id="QuantityColumn" text="Quantity" />
-                <TableColumn prefWidth="100.0" fx:id="TotalValueColumn" text="TotalValue" />
+                <TableColumn fx:id="TickerColumn" prefWidth="100.0" text="Ticker" />
+                <TableColumn fx:id="BuyDateColumn" prefWidth="100.0" text="BuyDate" />
+                <TableColumn fx:id="BuyPriceColumn" prefWidth="100.0" text="BuyPrice" />
+                <TableColumn fx:id="currentPriceColumn" prefWidth="100.0" text="CurrentPrice" />
+                <TableColumn fx:id="PriceDeltaColumn" prefWidth="100.0" text="PriceDelta" />
+                <TableColumn fx:id="QuantityColumn" prefWidth="100.0" text="Quantity" />
+                <TableColumn fx:id="TotalValueColumn" prefWidth="100.0" text="TotalValue" />
               </columns>
             </TableView>
          </children></HBox>

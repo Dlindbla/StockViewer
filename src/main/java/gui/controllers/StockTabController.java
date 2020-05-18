@@ -32,8 +32,6 @@ public class StockTabController implements Initializable {
     @FXML
     Button searchButton;
     @FXML
-    Button fillLineChartButton;
-    @FXML
     NumberAxis xAxis;
     @FXML
     NumberAxis yAxis;
