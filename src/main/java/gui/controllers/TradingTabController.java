@@ -1,6 +1,7 @@
 package gui.controllers;
 
 import api.Api;
+import api.ApiException;
 import api.ApiSearchResult;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -16,6 +17,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import utils.LongPosition;
 import utils.PlottableObject;
 import utils.Portfolio;
+
+import javax.sound.sampled.Port;
 import java.io.Serializable;
 import java.net.URL;
 import java.text.ParseException;
@@ -28,12 +31,23 @@ public class TradingTabController implements Initializable {
 
     MainWindowController mainWindowController;
     Api api;
-    ArrayList<Portfolio> portfolios;
+    ArrayList<Portfolio> portfolios = new ArrayList<>();
     private SearchFunction searchFunction = new SearchFunction();
     PlottableObject currentTicker;
 
+    final String DEFAULT_INTERVAL = "Daily";
+    final String DEFAULT_DATATYPE = "Close";
+
+    @FXML
+    TextField newPortfolioNameField;
+    @FXML
+    TextField newPortfolioLiquidityField;
     @FXML
     ComboBox portfolioComboBox;
+    @FXML
+    Button createPortfolioButton;
+    @FXML
+    Button deletePortfolioButton;
     @FXML
     Button updateButton;
     @FXML
@@ -73,9 +87,15 @@ public class TradingTabController implements Initializable {
 
     public void search(){searchFunction.restart();}
 
-    public void addPortfolio(String name, Double initialLiqudity){
-        Portfolio newPortfolio = new Portfolio(name,initialLiqudity);
-        portfolios.add(newPortfolio);
+    public void updateCurrentTicker() throws ApiException {
+        //gets the currently selected symbol, queries the API for it's daily interval plottable object and overwrites
+        //currentticker with it
+        //This should be threaded, it's not, too bad
+        currentTicker.getItems().clear();
+        var searchResult = (ApiSearchResult) tradingComboBox.getSelectionModel().getSelectedItem();
+        var ticker = searchResult.getSymbol();
+        var plottableObject = api.query(ticker, DEFAULT_INTERVAL,DEFAULT_DATATYPE);
+        currentTicker = plottableObject;
     }
 
     public Date getDate() throws ParseException {
@@ -91,7 +111,7 @@ public class TradingTabController implements Initializable {
     }
 
     //find the price for the given date in the data, finds the first date equal or greater than the given date
-    public double getPrice() throws ParseException {
+    public double getPriceByDate() throws ParseException {
         var date = getDate();
         for(var item: currentTicker.getItems()){
             if(item.getKey().equals(date)){return item.getValue().doubleValue();}
@@ -101,31 +121,56 @@ public class TradingTabController implements Initializable {
 
     public void buyPosition() throws ParseException {
         //these could be changed to be function that both retrieve and validate the data
-        var ticker = (String) tradingComboBox.getSelectionModel().getSelectedItem();
+        var searchResult = (ApiSearchResult) tradingComboBox.getSelectionModel().getSelectedItem();
+        var ticker = searchResult.getSymbol();
         var quantity = Integer.parseInt(quantityField.getText());
         var buyDate = getDate();
-        var buyPrice = getPrice();
+        var buyPrice = getPriceByDate();
         var currentPortfolio = (Portfolio) portfolioComboBox.getSelectionModel().getSelectedItem();
         currentPortfolio.buyPosition(ticker,buyDate,buyPrice,quantity);
         //find the current selected portfolio
         //use the portfolios buyPosition method
     }
 
-    public void sellPosition(){
+    public void sellPosition() throws ApiException {
         //get the selected position
-        //compute the profit
+        LongPosition longPosition = positionsTable.getSelectionModel().getSelectedItem();
+        //get the current price for the positions ticker
+        double sellPrice = getSellPrice(longPosition.getTicker());
         //call the selected portfolios sellPosition() function
+        var currentPortfolio = (Portfolio) portfolioComboBox.getSelectionModel().getSelectedItem();
+        currentPortfolio.sellPosition(longPosition,sellPrice);
         //????
         //Profit
+    }
+
+    public double getSellPrice(String ticker) throws ApiException {
+        //get the data for the provided ticker
+        var data = api.query(ticker,"daily", "open");///TODO : Fix this
+        //make sure the data is sorted
+        data.sortItems();
+        //get the last items price value as a double
+        double lastPrice = data.getItems().get(data.getItems().size()-1).getValue().doubleValue();
+        return lastPrice;
     }
 
 
 
 
-
-
-    public void deletePortfolio(Portfolio portfolio){
-        portfolios.remove(portfolio);
+    public void createPortfolio(){
+        //get the new name from the namefield
+        String name = newPortfolioNameField.getText();
+        double initLiquidity = Double.parseDouble(newPortfolioLiquidityField.getText());
+        Portfolio newPortfolio = new Portfolio(name,initLiquidity);
+        portfolios.add(newPortfolio);
+        updatePortfolioComboBox();
+    }
+    public void deletePortfolio(){
+        //get the current chosen portfolio
+        Portfolio portfolioDelete = (Portfolio) portfolioComboBox.getSelectionModel().getSelectedItem();
+        //delete it
+        portfolios.remove(portfolioDelete);
+        updatePortfolioComboBox();
     }
 
     public void savePortfolio(Serializable portfolio, String fileName){
@@ -135,13 +180,29 @@ public class TradingTabController implements Initializable {
     public void loadPortfolio(String fileName){
 
     }
+    public void updatePortfolioComboBox(){
+        portfolioComboBox.getItems().clear();
+        portfolioComboBox.getItems().addAll(portfolios);
+    }
 
-    public void updatePortfolio(){
-
+    public void updatePortfolio() throws ApiException {
+        //iterate over each position in the portfolio and update the positions
+        //get the current portfolio
+        Portfolio currentPortfolio = (Portfolio) portfolioComboBox.getSelectionModel().getSelectedItem();
+        for(LongPosition position: currentPortfolio.longPositions){
+            updatePosition(position);
+        }
     }
 
     //for a given position update it's values from an arraylist of plottableobjects
-    public void updatePosition(){}
+    public void updatePosition(LongPosition position) throws ApiException {
+        //get the ticker from the position
+        String ticker = position.getTicker();
+        //get the plottableobject from the api
+        api.query(ticker,DEFAULT_INTERVAL,DEFAULT_INTERVAL);
+        //get the latest price from the plottable object
+        //update the positions value
+    }
 
 
 
@@ -157,12 +218,22 @@ public class TradingTabController implements Initializable {
         QuantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
         TotalValueColumn.setCellValueFactory(new PropertyValueFactory<>("totalValue"));
 
+        //prevents user from inserting non integers into the liquidity and quantity fields
         quantityField.textProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue,
                                 String newValue) {
                 if (!newValue.matches("\\d*")) {
                     quantityField.setText(newValue.replaceAll("[^\\d]", ""));
+                }
+            }
+        });
+        newPortfolioLiquidityField.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue,
+                                String newValue) {
+                if (!newValue.matches("\\d*")) {
+                    newPortfolioLiquidityField.setText(newValue.replaceAll("[^\\d]", ""));
                 }
             }
         });
