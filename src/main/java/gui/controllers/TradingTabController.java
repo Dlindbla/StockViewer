@@ -97,7 +97,6 @@ public class TradingTabController implements Initializable {
         //gets the currently selected symbol, queries the API for it's daily interval plottable object and overwrites
         //currentticker with it
         //This should be threaded, it's not, too bad
-        currentTicker.getItems().clear();
         var searchResult = (ApiSearchResult) tradingComboBox.getSelectionModel().getSelectedItem();
         var ticker = searchResult.getSymbol();
         var plottableObject = api.query(ticker, DEFAULT_INTERVAL,DEFAULT_DATATYPE);
@@ -108,8 +107,8 @@ public class TradingTabController implements Initializable {
         String dateString = buyDateField.getText();
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
         Date inputDate = formatter.parse(dateString);
-        for(var item: currentTicker.getItems()){
-            if (item.getKey().compareTo(inputDate)<0){
+        for (var item : currentTicker.getItems()) {
+            if (item.getKey().equals(inputDate)) {
                 return item.getKey();
             }
         }
@@ -119,10 +118,35 @@ public class TradingTabController implements Initializable {
     //find the price for the given date in the data, finds the first date equal or greater than the given date
     public double getPriceByDate() throws ParseException {
         var date = getDate();
-        for(var item: currentTicker.getItems()){
-            if(item.getKey().equals(date)){return item.getValue().doubleValue();}
+        for (var item : currentTicker.getItems()) {
+            if (item.getKey().equals(date)) {
+                return item.getValue().doubleValue();
+            }
         }
         return 0.0;
+    }
+
+    public void selectCurrentPortfolio() {
+        // get currently selected portfolio
+        var currentPortfolio = (Portfolio) portfolioComboBox.getSelectionModel().getSelectedItem();
+
+        // update table rows
+        positionsTable.getItems().clear();
+        if (currentPortfolio != null) {
+            for (var position : currentPortfolio.longPositions) {
+                // fetch latest price
+                try {
+                    var obj = api.query(position.getTicker(), DEFAULT_INTERVAL, DEFAULT_DATATYPE);
+                    obj.sortItems();
+                    var items = obj.getItems();
+
+                    position.setCurrentPrice(items.get(items.size() - 1).getValue().doubleValue());
+                }
+                catch (ApiException ex) {}
+
+                positionsTable.getItems().add(position);
+            }
+        }
     }
 
     public void buyPosition() throws ParseException {
@@ -134,8 +158,9 @@ public class TradingTabController implements Initializable {
         var buyPrice = getPriceByDate();
         var currentPortfolio = (Portfolio) portfolioComboBox.getSelectionModel().getSelectedItem();
         currentPortfolio.buyPosition(ticker,buyDate,buyPrice,quantity);
-        //find the current selected portfolio
-        //use the portfolios buyPosition method
+
+        savePortfolios();
+        selectCurrentPortfolio();
     }
 
     public void sellPosition() throws ApiException {
@@ -152,7 +177,7 @@ public class TradingTabController implements Initializable {
 
     public double getSellPrice(String ticker) throws ApiException {
         //get the data for the provided ticker
-        var data = api.query(ticker,"daily", "open");///TODO : Fix this
+        var data = api.query(ticker, DEFAULT_INTERVAL, DEFAULT_DATATYPE);
         //make sure the data is sorted
         data.sortItems();
         //get the last items price value as a double
@@ -183,14 +208,7 @@ public class TradingTabController implements Initializable {
 
         savePortfolios();
     }
-
-    public void savePortfolio(Serializable portfolio, String fileName){
-
-    }
-
-    public void loadPortfolio(String fileName){
-
-    }
+    
     public void updatePortfolioComboBox(){
         portfolioComboBox.getItems().clear();
         portfolioComboBox.getItems().addAll(portfolios);

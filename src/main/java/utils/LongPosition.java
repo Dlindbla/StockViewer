@@ -1,11 +1,14 @@
 package utils;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class LongPosition {
+public class LongPosition implements Serializable {
+    private static final long serialVersionUID = 1L;
     private String ticker;
     private Date buyDate;
     private double buyPrice;
+    private double currentPrice;
     private int quantity;
     private String uniqueID;
     boolean active = true;
@@ -39,11 +42,27 @@ public class LongPosition {
         return buyPrice;
     }
 
+    public double getCurrentPrice() {
+        return currentPrice;
+    }
+
+    public double getPriceDelta() {
+        return currentPrice - buyPrice;
+    }
+
     public int getQuantity() {
         return quantity;
     }
 
+    public double getTotalValue() {
+        return currentPrice * quantity;
+    }
+
     public String getUniqueID() {
         return uniqueID;
+    }
+
+    public void setCurrentPrice(double price) {
+        currentPrice = price;
     }
 }

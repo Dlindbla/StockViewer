@@ -21,7 +21,7 @@
 
                       <Button fx:id="createPortfolioButton" onAction="#createPortfolio" prefWidth="150.0" text="Create Portfolio"  />
                       <Button fx:id="deletePortfolioButton" onAction="#deletePortfolio" prefWidth="150.0" text="Delete Portfolio"  />
-                      <ComboBox fx:id="portfolioComboBox" prefWidth="150.0" promptText="Select Portfolio"  />
+                      <ComboBox fx:id="portfolioComboBox" onAction="#selectCurrentPortfolio" prefWidth="150.0" promptText="Select Portfolio"  />
                       <Button fx:id="updateButton" prefWidth="150.0" text="Update Portfolio"/>
                       <TextField fx:id="leftTextField"  prefHeight="26.0" prefWidth="150.0" promptText="SEARCH"/>
                       <Button fx:id="searchButton" onAction="#search" text="SEARCH" prefWidth="150.0"/>
