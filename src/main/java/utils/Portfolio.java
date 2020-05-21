@@ -24,14 +24,11 @@ public class Portfolio implements Serializable {
         liquidity -= buyPrice * quantity;
     }
 
-    public void sellPosition(LongPosition position, double sellPrice){
-
+    public void sellPosition(LongPosition position, double sellPrice) {
         double profit = position.sell(sellPrice);
-        liquidity = liquidity + profit;
+        liquidity += profit;
         longPositions.remove(position);
-        return;
-
-        }
+    }
 
     @Override
     public String toString(){

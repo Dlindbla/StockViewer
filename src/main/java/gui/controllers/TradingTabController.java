@@ -13,19 +13,17 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.cell.PropertyValueFactory;
 import utils.LongPosition;
 import utils.PlottableObject;
 import utils.Portfolio;
-
-import javax.sound.sampled.Port;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -55,8 +53,6 @@ public class TradingTabController implements Initializable {
     @FXML
     Button deletePortfolioButton;
     @FXML
-    Button updateButton;
-    @FXML
     ComboBox tradingComboBox;
     @FXML
     TextField leftTextField;
@@ -64,6 +60,8 @@ public class TradingTabController implements Initializable {
     Button searchButton;
     @FXML
     Button buyButton;
+    @FXML
+    Button sellButton;
     @FXML
     TextField quantityField;
     @FXML
@@ -107,12 +105,25 @@ public class TradingTabController implements Initializable {
         String dateString = buyDateField.getText();
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
         Date inputDate = formatter.parse(dateString);
+
+        // find closest date
+        currentTicker.sortItems();
+        var date = currentTicker.getItems().get(0).getKey();
+
         for (var item : currentTicker.getItems()) {
-            if (item.getKey().equals(inputDate)) {
-                return item.getKey();
+            if (item.getKey().equals(inputDate)) return item.getKey();
+
+            if (date.compareTo(inputDate) < 0) {
+                date = item.getKey();
+                continue;
+            }
+
+            if (date.compareTo(inputDate) > 0) {
+                break;
             }
         }
-        return null;
+
+        return date;
     }
 
     //find the price for the given date in the data, finds the first date equal or greater than the given date
@@ -136,11 +147,8 @@ public class TradingTabController implements Initializable {
             for (var position : currentPortfolio.longPositions) {
                 // fetch latest price
                 try {
-                    var obj = api.query(position.getTicker(), DEFAULT_INTERVAL, DEFAULT_DATATYPE);
-                    obj.sortItems();
-                    var items = obj.getItems();
-
-                    position.setCurrentPrice(items.get(items.size() - 1).getValue().doubleValue());
+                    var currentPrice = getCurrentTickerPrice(position.getTicker());
+                    position.setCurrentPrice(currentPrice);
                 }
                 catch (ApiException ex) {}
 
@@ -167,25 +175,29 @@ public class TradingTabController implements Initializable {
         //get the selected position
         LongPosition longPosition = positionsTable.getSelectionModel().getSelectedItem();
         //get the current price for the positions ticker
-        double sellPrice = getSellPrice(longPosition.getTicker());
+        double sellPrice = getCurrentTickerPrice(longPosition.getTicker());
         //call the selected portfolios sellPosition() function
         var currentPortfolio = (Portfolio) portfolioComboBox.getSelectionModel().getSelectedItem();
-        currentPortfolio.sellPosition(longPosition,sellPrice);
-        //????
-        //Profit
+        currentPortfolio.sellPosition(longPosition, sellPrice);
+
+        var diff = (sellPrice - longPosition.getBuyPrice()) * longPosition.getQuantity();
+
+        // lol
+        var alert = new Alert(AlertType.INFORMATION);
+        alert.setContentText(String.format("Sold %s with a %s of %f", longPosition.getTicker(), ((diff >= 0) ? "profit" : "loss"), diff));
+        alert.show();
+
+        savePortfolios();
+        selectCurrentPortfolio();
     }
 
-    public double getSellPrice(String ticker) throws ApiException {
-        //get the data for the provided ticker
+    public double getCurrentTickerPrice(String ticker) throws ApiException {
         var data = api.query(ticker, DEFAULT_INTERVAL, DEFAULT_DATATYPE);
-        //make sure the data is sorted
         data.sortItems();
-        //get the last items price value as a double
-        double lastPrice = data.getItems().get(data.getItems().size()-1).getValue().doubleValue();
-        return lastPrice;
+        var items = data.getItems();
+
+        return items.get(items.size() - 1).getValue().doubleValue();
     }
-
-
 
 
     public void createPortfolio(){
