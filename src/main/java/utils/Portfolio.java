@@ -36,6 +36,8 @@ public class Portfolio implements Serializable {
     public String toString(){
         return name;
     }
+
+    private static final long serialVersionUID = 1L;
 }
 
 

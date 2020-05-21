@@ -19,6 +19,12 @@ import utils.PlottableObject;
 import utils.Portfolio;
 
 import javax.sound.sampled.Port;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.URL;
 import java.text.ParseException;
@@ -164,6 +170,9 @@ public class TradingTabController implements Initializable {
         Portfolio newPortfolio = new Portfolio(name,initLiquidity);
         portfolios.add(newPortfolio);
         updatePortfolioComboBox();
+
+        // save to file
+        savePortfolios();
     }
     public void deletePortfolio(){
         //get the current chosen portfolio
@@ -171,6 +180,8 @@ public class TradingTabController implements Initializable {
         //delete it
         portfolios.remove(portfolioDelete);
         updatePortfolioComboBox();
+
+        savePortfolios();
     }
 
     public void savePortfolio(Serializable portfolio, String fileName){
@@ -192,6 +203,8 @@ public class TradingTabController implements Initializable {
         for(LongPosition position: currentPortfolio.longPositions){
             updatePosition(position);
         }
+
+        savePortfolios();
     }
 
     //for a given position update it's values from an arraylist of plottableobjects
@@ -239,10 +252,34 @@ public class TradingTabController implements Initializable {
         });
 
         //load all portfolios
+        try {
+            var fileStream = new FileInputStream("portfolios.bin");
+            var objectStream = new ObjectInputStream(fileStream);
+            var p = (ArrayList<Portfolio>)objectStream.readObject();
+            objectStream.close();
+            fileStream.close();
 
-
+            portfolios.addAll(p);
+            updatePortfolioComboBox();
+        }
+        catch (FileNotFoundException ex) {}
+        catch (Exception ex) {
+            System.out.println("Failed to load portfolios: " + ex.getMessage());
+        }
     }
 
+    private void savePortfolios() {
+        try {
+            var fileStream = new FileOutputStream("portfolios.bin");
+            var objectStream = new ObjectOutputStream(fileStream);
+            objectStream.writeObject(portfolios);
+            objectStream.close();
+            fileStream.close();
+        }
+        catch (Exception ex) {
+            System.out.println("Failed to save portfolios to disk: " + ex.getMessage());
+        }
+    }
 
 
 
