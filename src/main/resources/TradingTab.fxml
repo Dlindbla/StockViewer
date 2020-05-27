@@ -18,10 +18,10 @@
                   <VBox  layoutX="10" layoutY="10">
                       <TextField fx:id="newPortfolioNameField" prefWidth="150.0" promptText="Name New Portfolio"/>
                       <TextField fx:id="newPortfolioLiquidityField" prefWidth="150.0" promptText="Initial Liquidity"/>
-
                       <Button fx:id="createPortfolioButton" onAction="#createPortfolio" prefWidth="150.0" text="Create Portfolio"  />
                       <Button fx:id="deletePortfolioButton" onAction="#deletePortfolio" prefWidth="150.0" text="Delete Portfolio"  />
-                      <ComboBox fx:id="portfolioComboBox" onAction="#selectCurrentPortfolio" prefWidth="150.0" promptText="Select Portfolio"  />
+                      <ComboBox fx:id="portfolioComboBox" onAction="#updateCurrentlySelectedPortfolio" prefWidth="150.0" promptText="Select Portfolio"  />
+                      <Button fx:id="updatePortfolioButton" onAction="#updateCurrentlySelectedPortfolio" prefWidth="150.0" text="Update Portfolio"  />
                       <TextField fx:id="leftTextField"  prefHeight="26.0" prefWidth="150.0" promptText="SEARCH"/>
                       <Button fx:id="searchButton" onAction="#search" text="SEARCH" prefWidth="150.0"/>
                       <ComboBox fx:id="tradingComboBox" onAction="#updateCurrentTicker" layoutX="14.0" layoutY="14.0" prefWidth="150.0" promptText="Results" />

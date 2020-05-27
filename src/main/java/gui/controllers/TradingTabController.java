@@ -37,6 +37,7 @@ public class TradingTabController implements Initializable {
     Api api;
     ArrayList<Portfolio> portfolios = new ArrayList<>();
     private SearchFunction searchFunction = new SearchFunction();
+    private updateCurrentPortfolio portfolioUpdater = new updateCurrentPortfolio();
     PlottableObject currentTicker;
 
     final String DEFAULT_INTERVAL = "Daily";
@@ -58,6 +59,8 @@ public class TradingTabController implements Initializable {
     TextField leftTextField;
     @FXML
     Button searchButton;
+    @FXML
+    Button updatePortfolioButton;
     @FXML
     Button buyButton;
     @FXML
@@ -90,6 +93,8 @@ public class TradingTabController implements Initializable {
     }
 
     public void search(){searchFunction.restart();}
+
+    public void updateCurrentlySelectedPortfolio(){portfolioUpdater.restart();}
 
     public void updateCurrentTicker() throws ApiException {
         //gets the currently selected symbol, queries the API for it's daily interval plottable object and overwrites
@@ -195,7 +200,6 @@ public class TradingTabController implements Initializable {
         var data = api.query(ticker, DEFAULT_INTERVAL, DEFAULT_DATATYPE);
         data.sortItems();
         var items = data.getItems();
-
         return items.get(items.size() - 1).getValue().doubleValue();
     }
 
@@ -226,16 +230,6 @@ public class TradingTabController implements Initializable {
         portfolioComboBox.getItems().addAll(portfolios);
     }
 
-    public void updatePortfolio() throws ApiException {
-        //iterate over each position in the portfolio and update the positions
-        //get the current portfolio
-        Portfolio currentPortfolio = (Portfolio) portfolioComboBox.getSelectionModel().getSelectedItem();
-        for(LongPosition position: currentPortfolio.longPositions){
-            updatePosition(position);
-        }
-
-        savePortfolios();
-    }
 
     //for a given position update it's values from an arraylist of plottableobjects
     public void updatePosition(LongPosition position) throws ApiException {
@@ -312,18 +306,45 @@ public class TradingTabController implements Initializable {
     }
 
 
-
-    private class getStockDate extends Service<ArrayList<XYChart.Series<Number, Number>>>{
-
+    //start to update the currently selected portfolio
+    private class updateCurrentPortfolio extends Service<ArrayList<LongPosition>>{
         @Override
-        protected Task<ArrayList<XYChart.Series<Number, Number>>> createTask() {
+        protected Task<ArrayList<LongPosition>> createTask() {
             return new Task<>(){
                 @Override
-                protected ArrayList<XYChart.Series<Number, Number>> call() throws Exception {
-                    //TODO : Implement this method to populate the currentTicker() ArrayList with stockpoints
-                    // Also sort the data afterwards pl0x;
-                    return null;
+                public ArrayList<LongPosition> call() throws Exception {
+                    // update table rows
+
+                    //create a new list to contain the updated poistions
+                    var currentPortfolio = (Portfolio) portfolioComboBox.getSelectionModel().getSelectedItem();
+
+                    ArrayList<LongPosition> newList = new ArrayList<>();
+                    //positionsTable.getItems().clear();
+
+                    if (currentPortfolio != null) {
+                        for (var position : currentPortfolio.longPositions) {
+                            // fetch latest price
+                            try {
+                                var currentPrice = getCurrentTickerPrice(position.getTicker());
+                                position.setCurrentPrice(currentPrice);
+                            }
+                            catch (ApiException ex) {}
+                            //add all the new positions into the list
+                            newList.add(position);
+                        }
+
+                    }
+                    return newList;
                 }
+                @Override
+                protected void succeeded() {
+                    //replace the positions in the portfolio
+                    positionsTable.getItems().clear();
+                    for(var item : getValue()){
+                        positionsTable.getItems().add(item);
+                    }
+                }
+
             };
         }
     }
